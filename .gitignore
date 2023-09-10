@@ -1,3 +1,6 @@
+# Test outputs
 .pytest_cache
-.coverage
 htmlcov
+.coverage
+pytest.xml
+pytest-coverage.txt

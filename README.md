@@ -1,5 +1,7 @@
 # AI Document Search Backend
 
+![Auto-updating coverage badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/petr7555/33a367226c0ebc77e2e059ec7e9204fb/raw/pytest-coverage-comment__master.json)
+
 ## How to run
 
 ### Server
@@ -14,7 +16,7 @@
 
 ### Unit tests
 
-- `poetry run pytest --cov=ai_document_search_backend --cov-report=html`
+- `poetry run pytest`
 
 ### Lint autoformat
 
