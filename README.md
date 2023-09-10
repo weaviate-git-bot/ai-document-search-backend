@@ -1,0 +1,1 @@
+- `uvicorn ai_document_search_backend.main:app --reload`
