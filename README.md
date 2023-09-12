@@ -1,12 +1,15 @@
 # AI Document Search Backend
 
+[![Lint and test](https://github.com/petr7555/ai-document-search-backend/actions/workflows/lint_and_test.yml/badge.svg)](https://github.com/petr7555/ai-document-search-backend/actions/workflows/lint_and_test.yml)
 ![Auto-updating coverage badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/petr7555/33a367226c0ebc77e2e059ec7e9204fb/raw/pytest-coverage-comment__master.json)
+[![Build and deploy container app to Azure Web App - ai-document-search-backend](https://github.com/petr7555/ai-document-search-backend/actions/workflows/master_ai-document-search-backend.yml/badge.svg)](https://github.com/petr7555/ai-document-search-backend/actions/workflows/master_ai-document-search-backend.yml)
 
 The server is deployed at https://ai-document-search-backend.azurewebsites.net/.
 The deployment is automatic on push to the `master` branch.
 The OpenAPI schema is available at https://ai-document-search-backend.azurewebsites.net/docs.
 
-This repository uses [Poetry](https://python-poetry.org/) package manager (see [useful commands](#useful-poetry-commands)).
+This repository uses [Poetry](https://python-poetry.org/) package manager (
+see [useful commands](#useful-poetry-commands)).
 
 The server uses [FastAPI](https://fastapi.tiangolo.com/tutorial/) framework.
 
