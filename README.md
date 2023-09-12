@@ -25,3 +25,8 @@
 ### Lint check
 
 - `poetry run black --config black.py.toml . --check`
+
+### Build Docker image, tag and push to Azure Container Registry
+- `docker build -t ai-document-search-backend -f Dockerfile .`
+- `docker tag ai-document-search-backend:latest crdocsearchdev.azurecr.io/ai-document-search-backend:0.0.1`
+- `docker push crdocsearchdev.azurecr.io/ai-document-search-backend:0.0.1`
