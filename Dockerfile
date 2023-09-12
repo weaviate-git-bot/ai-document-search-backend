@@ -20,4 +20,4 @@ RUN poetry install --only main --no-root --no-cache --no-interaction
 
 COPY ai_document_search_backend ./ai_document_search_backend
 
-CMD ["poetry", "run", "uvicorn", "ai_document_search_backend.application:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["poetry", "run", "uvicorn", "ai_document_search_backend.application:app", "--host", "0.0.0.0", "--port", "80"]
