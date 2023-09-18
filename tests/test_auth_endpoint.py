@@ -45,7 +45,7 @@ def test_token():
     token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     token = create_access_token(data={"sub": username}, expires_delta=token_expires)
 
-    response = client.get("/auth/main", headers={"Authorization": "Bearer " + token})
+    response = client.get("/auth/validate_token", headers={"Authorization": "Bearer " + token})
     assert response.status_code == 200
 
     payload = jwt.decode(token, SECRETKEY, algorithms=[ALGORITHM])
