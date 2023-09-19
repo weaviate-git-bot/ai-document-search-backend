@@ -5,5 +5,7 @@ htmlcov
 pytest.xml
 pytest-coverage.txt
 
+__pycache__
+
 # Private data
 data

@@ -1,8 +1,9 @@
 from typing import Optional
 
 from dependency_injector.wiring import inject, Provide
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, FastAPI, status
 from pydantic import BaseModel
+
 
 from .containers import Container
 from .services import SummarizationService
