@@ -11,18 +11,19 @@ from .services import SummarizationService
 
 class SummarizationResponse(BaseModel):
     summary: str
-    
 
 
 class User(BaseModel):
     username: str
-    email: str 
-    full_name: str 
-    disabled: bool 
-    
+    email: str
+    full_name: str
+    disabled: bool
+
+
 class UserInDB(User):
     password: str
-    
+
+
 fake_users_db = {
     "marius": {
         "username": "marius",
@@ -35,7 +36,7 @@ fake_users_db = {
 
 router = APIRouter()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl = "token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 # def fake_decode_token(token):
 #     return User(
@@ -61,15 +62,17 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl = "token")
 #         raise HTTPException(status_code=400, detail="Inactive user")
 #     return current_user
 
+
 @router.get("/")
 @router.get("/health")
 async def health():
     return "OK"
 
-#For authenticating
+
+# For authenticating
 @router.post("/token")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    user_dict = fake_users_db.get(form_data.username) #TODO: Make proper users
+    user_dict = fake_users_db.get(form_data.username)  # TODO: Make proper users
     if not user_dict:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     user = UserInDB(**user_dict)
