@@ -14,6 +14,11 @@ dependency-injector = "^4.41.0"
 pandas = "^2.1.0"
 requests = "^2.31.0"
 openpyxl = "^3.1.2"
+langchain = "^0.0.294"
+pypdf = "^3.16.1"
+openai = "^0.28.0"
+tiktoken = "^0.5.1"
+weaviate-client = "^3.24.1"
 
 
 [tool.poetry.group.dev.dependencies]
