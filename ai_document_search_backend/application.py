@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from . import endpoints
+from . import auth, endpoints
 from .containers import Container
 
 
@@ -18,6 +18,7 @@ def create_app() -> FastAPI:
     )
     app.container = container
     app.include_router(endpoints.router)
+    app.include_router(auth.router, prefix="/auth")
     return app
 
 
