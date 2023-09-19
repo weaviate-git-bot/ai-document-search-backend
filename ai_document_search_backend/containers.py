@@ -1,7 +1,7 @@
 from dependency_injector import containers, providers
 
 from . import services
-from .utils import relative_path_from_file
+from .utils.relative_path_from_file import relative_path_from_file
 
 CONFIG_PATH = relative_path_from_file(__file__, "../config.yml")
 
