@@ -1,7 +1,7 @@
 from typing import Optional
 
 from dependency_injector.wiring import inject, Provide
-from fastapi import APIRouter, Depends, FastAPI, status
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 

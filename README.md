@@ -39,10 +39,12 @@ The server is available at http://localhost:8000/.
 ### Lint autoformat
 
 - `poetry run black --config black.py.toml .`
+- `poetry run ruff check . --fix`
 
 ### Lint check
 
 - `poetry run black --config black.py.toml . --check`
+- `poetry run ruff check .`
 
 ### Build Docker image, tag and push to Azure Container Registry
 

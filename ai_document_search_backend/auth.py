@@ -1,11 +1,8 @@
-from typing import Optional, Annotated
+from typing import Annotated
 
-from dependency_injector.wiring import inject, Provide
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
-
-from .containers import Container
 
 
 class User(BaseModel):
