@@ -2,6 +2,7 @@ from fastapi.testclient import TestClient
 
 from ai_document_search_backend.application import app
 
+
 client = TestClient(app)
 
 
@@ -21,3 +22,11 @@ def test_invalid_username():
     response = client.post("/auth/token", data={"username": "maris", "password": 123})
     assert response.status_code == 400
     assert response.json() == {"detail": "Incorrect username or password"}
+
+
+def test_hashing():
+    from ai_document_search_backend.auth import hashedPassword, checkPassword
+
+    password = "password"
+    hashedPassword = hashedPassword(password)
+    assert checkPassword(password, hashedPassword) == True
