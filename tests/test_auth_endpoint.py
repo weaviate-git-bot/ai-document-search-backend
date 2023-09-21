@@ -1,6 +1,12 @@
 from fastapi.testclient import TestClient
+from datetime import timedelta
+from jose import jwt
+
 
 from ai_document_search_backend.application import app
+from ai_document_search_backend.auth import create_access_token
+from ai_document_search_backend.auth import get_hashed_password, check_password
+from ai_document_search_backend.config import Settings
 
 
 client = TestClient(app)
@@ -9,7 +15,6 @@ client = TestClient(app)
 def test_valid_authentication():
     response = client.post("/auth/token", data={"username": "marius", "password": 123})
     assert response.status_code == 200
-    assert response.json() == {"access_token": "marius", "token_type": "bearer"}
 
 
 def test_invalid_password():
@@ -25,8 +30,25 @@ def test_invalid_username():
 
 
 def test_hashing():
-    from ai_document_search_backend.auth import hashedPassword, checkPassword
-
     password = "password"
-    hashedPassword = hashedPassword(password)
-    assert checkPassword(password, hashedPassword) == True
+    hashed_password = get_hashed_password(password)
+    assert check_password(password, hashed_password)
+
+
+def test_token():
+    SECRETKEY = Settings().secretkey
+    ALGORITHM = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES = 60
+
+    username = "testuser"
+
+    token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    token = create_access_token(data={"sub": username}, expires_delta=token_expires)
+
+    response = client.get("/auth/main", headers={"Authorization": "Bearer " + token})
+    assert response.status_code == 200
+
+    payload = jwt.decode(token, SECRETKEY, algorithms=[ALGORITHM])
+    username: str = payload.get("sub")
+
+    assert username == "testuser"
