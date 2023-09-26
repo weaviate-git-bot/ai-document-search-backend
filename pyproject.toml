@@ -19,6 +19,8 @@ pypdf = "^3.16.1"
 openai = "^0.28.0"
 tiktoken = "^0.5.1"
 weaviate-client = "^3.24.1"
+unstructured = {extras = ["pdf"], version = "^0.10.15"}
+pymupdf = "^1.23.3"
 
 
 [tool.poetry.group.dev.dependencies]
