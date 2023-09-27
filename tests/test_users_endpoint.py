@@ -24,20 +24,18 @@ def run_before_and_after_tests():
 client = TestClient(app)
 
 
-def test_valid_username_and_password():
+def test_not_authenticated():
+    response = client.get("/users/me")
+    assert response.status_code == 401
+
+
+def test_get_current_user_when_authenticated():
     response = client.post("/auth/token", data={"username": test_username, "password": test_password})
     assert response.status_code == 200
-    assert response.json()["access_token"]
+    access_token = response.json()["access_token"]
+    assert access_token
     assert response.json()["token_type"] == "bearer"
 
-
-def test_invalid_password():
-    response = client.post("/auth/token", data={"username": test_username, "password": "invalid"})
-    assert response.status_code == 401
-    assert response.json() == {"detail": "Incorrect username or password"}
-
-
-def test_invalid_username():
-    response = client.post("/auth/token", data={"username": "invalid", "password": test_password})
-    assert response.status_code == 401
-    assert response.json() == {"detail": "Incorrect username or password"}
+    response = client.get("/users/me", headers={"Authorization": f"Bearer {access_token}"})
+    assert response.status_code == 200
+    assert response.json() == {"username": test_username}

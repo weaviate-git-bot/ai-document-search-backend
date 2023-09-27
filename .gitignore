@@ -6,7 +6,9 @@ pytest.xml
 pytest-coverage.txt
 
 __pycache__
-.env
 
 # Private data
 data
+
+# Secrets
+.env
