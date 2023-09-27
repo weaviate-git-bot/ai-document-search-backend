@@ -1,14 +1,11 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from . import auth, endpoints
 from .containers import Container
+from .routers import home_router, summarization_router, auth_router, users_router
 
 
 def create_app() -> FastAPI:
-    container = Container()
-    container.config.giphy.api_key.from_env("GIPHY_API_KEY")
-
     app = FastAPI()
     app.add_middleware(
         CORSMiddleware,
@@ -16,9 +13,15 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    container = Container()
     app.container = container
-    app.include_router(endpoints.router)
-    app.include_router(auth.router, prefix="/auth")
+
+    app.include_router(home_router.router)
+    app.include_router(auth_router.router)
+    app.include_router(users_router.router)
+    app.include_router(summarization_router.router)
+
     return app
 
 
