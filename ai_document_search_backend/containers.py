@@ -27,9 +27,9 @@ class Container(containers.DeclarativeContainer):
     )
 
     load_dotenv()
-    secret_key = os.getenv("SECRET_KEY")
-    username = os.getenv("USERNAME")
-    password = os.getenv("PASSWORD")
+    secret_key = os.getenv("AUTH_SECRET_KEY")
+    username = os.getenv("AUTH_USERNAME")
+    password = os.getenv("AUTH_PASSWORD")
 
     auth_service = providers.Factory(
         AuthService,
