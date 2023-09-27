@@ -36,19 +36,19 @@ def test_hashing():
 
 
 def test_token():
-    SECRETKEY = Settings().secretkey
-    ALGORITHM = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES = 60
+    secretkey = Settings().secretkey
+    algorithm = "HS256"
+    access_token_expire_minutes = 60
 
     username = "testuser"
 
-    token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    token_expires = timedelta(minutes=access_token_expire_minutes)
     token = create_access_token(data={"sub": username}, expires_delta=token_expires)
 
     response = client.get("/auth/validate_token", headers={"Authorization": "Bearer " + token})
     assert response.status_code == 200
 
-    payload = jwt.decode(token, SECRETKEY, algorithms=[ALGORITHM])
+    payload = jwt.decode(token, secretkey, algorithms=[algorithm])
     username: str = payload.get("sub")
 
     assert username == "testuser"

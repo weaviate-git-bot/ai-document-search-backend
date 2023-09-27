@@ -64,20 +64,20 @@ fake_salts_db = {
     "test": {"username": "test", "salt": "DWs93J1MgEOKQ0Tz0pxgtsnM4I4VNSDz"},
 }
 
-passwordContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
+password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 router = APIRouter()
 
-oauth2Scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def get_hashed_password(password: str):
-    return passwordContext.hash(password)
+    return password_context.hash(password)
 
 
 def check_password(password: str, hashed_password: str):
-    return passwordContext.verify(password, hashed_password)
+    return password_context.verify(password, hashed_password)
 
 
 def create_access_token(data: dict, expires_delta: timedelta):
@@ -107,7 +107,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 
 # Call to validate a token
 @router.get("/validate_token")
-async def main(token: Annotated[str, Depends(oauth2Scheme)]):
+async def main(token: Annotated[str, Depends(oauth2_scheme)]):
     username = ""
     try:
         payload = jwt.decode(token, SECRETKEY, algorithms=[ALGORITHM])
