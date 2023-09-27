@@ -19,5 +19,6 @@ ENV POETRY_VIRTUALENVS_IN_PROJECT=true
 RUN poetry install --only main --no-root --no-cache --no-interaction
 
 COPY ai_document_search_backend ./ai_document_search_backend
+COPY config.yml ./
 
 CMD ["poetry", "run", "uvicorn", "ai_document_search_backend.application:app", "--host", "0.0.0.0", "--port", "80"]
