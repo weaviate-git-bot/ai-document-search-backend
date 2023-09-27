@@ -27,8 +27,14 @@ class UserInDB(User):
 
 
 class AuthService(BaseService):
-
-    def __init__(self, algorithm: str, access_token_expire_minutes: int, secret_key: str, username: str, password: str) -> None:
+    def __init__(
+        self,
+        algorithm: str,
+        access_token_expire_minutes: int,
+        secret_key: str,
+        username: str,
+        password: str,
+    ) -> None:
         self.algorithm = algorithm
         self.access_token_expire_minutes = access_token_expire_minutes
         self.secret_key = secret_key

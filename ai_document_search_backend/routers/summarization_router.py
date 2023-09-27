@@ -20,10 +20,10 @@ class SummarizationResponse(BaseModel):
 @router.get("/")
 @inject
 async def summarization(
-        text: str,
-        summary_length: Optional[int] = None,
-        default_summary_length: int = Depends(Provide[Container.config.default.summary_length]),
-        summarization_service: SummarizationService = Depends(Provide[Container.summarization_service]),
+    text: str,
+    summary_length: Optional[int] = None,
+    default_summary_length: int = Depends(Provide[Container.config.default.summary_length]),
+    summarization_service: SummarizationService = Depends(Provide[Container.summarization_service]),
 ) -> SummarizationResponse:
     summary_length = summary_length or default_summary_length
 

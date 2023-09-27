@@ -12,11 +12,13 @@ CONFIG_PATH = relative_path_from_file.relative_path_from_file(__file__, "../conf
 
 class Container(containers.DeclarativeContainer):
     # Specify modules in which you want to use the @inject decorator.
-    wiring_config = containers.WiringConfiguration(modules=[
-        ".routers.summarization_router",
-        ".routers.auth_router",
-        ".routers.users_router",
-    ])
+    wiring_config = containers.WiringConfiguration(
+        modules=[
+            ".routers.summarization_router",
+            ".routers.auth_router",
+            ".routers.users_router",
+        ]
+    )
 
     config = providers.Configuration(yaml_files=[CONFIG_PATH])
 
