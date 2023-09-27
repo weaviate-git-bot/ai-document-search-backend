@@ -36,3 +36,5 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 # Never enforce `E501` (line length violations).
 ignore = ["E501"]
+# Check also naming conventions (https://docs.astral.sh/ruff/rules/#pep8-naming-n)
+extend-select = ["N"]
