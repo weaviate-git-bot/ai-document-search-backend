@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 from .services.auth_service import AuthService
 from .services.summarization_service import SummarizationService
+from .services.chatbot_service import ChatbotService
 from .utils.relative_path_from_file import relative_path_from_file
 
 CONFIG_PATH = relative_path_from_file(__file__, "../config.yml")
@@ -17,6 +18,7 @@ class Container(containers.DeclarativeContainer):
             ".routers.summarization_router",
             ".routers.auth_router",
             ".routers.users_router",
+            ".routers.chatbot_router"
         ]
     )
 
@@ -24,6 +26,10 @@ class Container(containers.DeclarativeContainer):
 
     summarization_service = providers.Factory(
         SummarizationService,
+    )
+    
+    chatbot_service = providers.Factory(
+        ChatbotService,
     )
 
     load_dotenv()
