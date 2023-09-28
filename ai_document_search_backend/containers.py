@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 
 from .services.auth_service import AuthService
 from .services.summarization_service import SummarizationService
-from .utils import relative_path_from_file
+from .utils.relative_path_from_file import relative_path_from_file
 
-CONFIG_PATH = relative_path_from_file.relative_path_from_file(__file__, "../config.yml")
+CONFIG_PATH = relative_path_from_file(__file__, "../config.yml")
 
 
 class Container(containers.DeclarativeContainer):

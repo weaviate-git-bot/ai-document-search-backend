@@ -19,6 +19,13 @@ cryptography = "^41.0.4"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 python-dotenv = "^1.0.0"
+langchain = "^0.0.294"
+pypdf = "^3.16.1"
+openai = "^0.28.0"
+tiktoken = "^0.5.1"
+weaviate-client = "^3.24.1"
+unstructured = {extras = ["pdf"], version = "^0.10.15"}
+pymupdf = "^1.23.3"
 
 
 [tool.poetry.group.dev.dependencies]
