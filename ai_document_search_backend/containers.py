@@ -18,7 +18,7 @@ class Container(containers.DeclarativeContainer):
             ".routers.summarization_router",
             ".routers.auth_router",
             ".routers.users_router",
-            ".routers.chatbot_router"
+            ".routers.chatbot_router",
         ]
     )
 
@@ -27,7 +27,7 @@ class Container(containers.DeclarativeContainer):
     summarization_service = providers.Factory(
         SummarizationService,
     )
-    
+
     chatbot_service = providers.Factory(
         ChatbotService,
     )
