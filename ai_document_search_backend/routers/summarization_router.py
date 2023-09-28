@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from ai_document_search_backend.containers import Container
 from ai_document_search_backend.services.summarization_service import SummarizationService
-from ai_document_search_backend.services.auth_service import AuthService, User
+from ai_document_search_backend.services.auth_service import AuthService
 
 
 router = APIRouter(
@@ -34,7 +34,7 @@ async def summarization(
     default_summary_length: int = Depends(Provide[Container.config.default.summary_length]),
     summarization_service: SummarizationService = Depends(Provide[Container.summarization_service]),
 ) -> SummarizationResponse:
-    user = auth_service.get_current_user(token)
+    auth_service.get_current_user(token)
     summary_length = summary_length or default_summary_length
 
     summary = summarization_service.summarize(text, summary_length)
