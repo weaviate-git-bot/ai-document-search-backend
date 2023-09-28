@@ -3,17 +3,25 @@ from pathlib import Path
 import dotenv
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
-from langchain.document_loaders import PyPDFLoader, PyMuPDFLoader, PyPDFDirectoryLoader, \
-    PDFPlumberLoader
+from langchain.document_loaders import (
+    PyPDFLoader,
+    PyMuPDFLoader,
+    PyPDFDirectoryLoader,
+    PDFPlumberLoader,
+)
 from langchain.document_loaders import UnstructuredPDFLoader
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.memory import ConversationSummaryMemory
 from langchain.vectorstores import Weaviate
 
-from ai_document_search_backend.utils.relative_path_from_file import relative_path_from_file
+from ai_document_search_backend.utils.relative_path_from_file import (
+    relative_path_from_file,
+)
 
-WEAVIATE_URL = 'http://localhost:8080'
-PDF_FILE_PATH = relative_path_from_file(__file__, "../../data/pdfs/NO0010914682_LA_20201217.PDF")
+WEAVIATE_URL = "http://localhost:8080"
+PDF_FILE_PATH = relative_path_from_file(
+    __file__, "../../data/pdfs/NO0010914682_LA_20201217.PDF"
+)
 PDF_DIR_PATH = relative_path_from_file(__file__, "../../data/pdfs_subset/")
 
 # Load OPENAI_API_KEY
@@ -49,18 +57,24 @@ loader = PDFPlumberLoader(PDF_FILE_PATH)
 data_pdfplumber = loader.load()
 
 # 3. Store
-vectorstore = Weaviate.from_documents(documents=data_pypdf, embedding=OpenAIEmbeddings(),
-                                      weaviate_url=WEAVIATE_URL,
-                                      by_text=False)
+vectorstore = Weaviate.from_documents(
+    documents=data_pypdf,
+    embedding=OpenAIEmbeddings(),
+    weaviate_url=WEAVIATE_URL,
+    by_text=False,
+)
 
 # 4. Retrieve
 retriever = vectorstore.as_retriever()
 
 # 5.+6. Generate + Chat
 llm = ChatOpenAI()
-memory = ConversationSummaryMemory(llm=llm, memory_key="chat_history", output_key='answer', return_messages=True)
-qa = ConversationalRetrievalChain.from_llm(llm, retriever=retriever, memory=memory, verbose=True,
-                                           return_source_documents=True)
+memory = ConversationSummaryMemory(
+    llm=llm, memory_key="chat_history", output_key="answer", return_messages=True
+)
+qa = ConversationalRetrievalChain.from_llm(
+    llm, retriever=retriever, memory=memory, verbose=True, return_source_documents=True
+)
 
 
 def print_with_sources(result):
@@ -68,7 +82,9 @@ def print_with_sources(result):
     print(f"Answer: {result['answer']}")
     print("Sources:")
     for source in result["source_documents"]:
-        print(f"\tPage {source.metadata['page']} of {Path(source.metadata['source']).name}.")
+        print(
+            f"\tPage {source.metadata['page']} of {Path(source.metadata['source']).name}."
+        )
     print("-" * 50)
 
 
