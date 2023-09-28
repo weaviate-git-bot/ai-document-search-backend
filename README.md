@@ -21,6 +21,14 @@ tested using [pytest](https://docs.pytest.org/en/stable/).
 
 The server is available at http://localhost:8000/.
 
+Start by creating an `.env` file in the project root with the following content:
+
+```dotenv
+AUTH_SECRET_KEY=any_secret_key
+AUTH_USERNAME=any_user
+AUTH_PASSWORD=any_password
+```
+
 ### Without Docker
 
 - `poetry install`
@@ -39,10 +47,12 @@ The server is available at http://localhost:8000/.
 ### Lint autoformat
 
 - `poetry run black --config black.py.toml .`
+- `poetry run ruff check . --fix`
 
 ### Lint check
 
 - `poetry run black --config black.py.toml . --check`
+- `poetry run ruff check .`
 
 ### Build Docker image, tag and push to Azure Container Registry
 

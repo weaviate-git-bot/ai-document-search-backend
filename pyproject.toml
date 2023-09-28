@@ -14,6 +14,11 @@ dependency-injector = "^4.41.0"
 pandas = "^2.1.0"
 requests = "^2.31.0"
 openpyxl = "^3.1.2"
+python-multipart = "^0.0.6"
+cryptography = "^41.0.4"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-dotenv = "^1.0.0"
 langchain = "^0.0.294"
 pypdf = "^3.16.1"
 openai = "^0.28.0"
@@ -28,7 +33,14 @@ pytest = "^7.4.2"
 pytest-cov = "^4.1.0"
 httpx = "^0.24.1"
 black = "^23.9.0"
+ruff = "^0.0.290"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+# Never enforce `E501` (line length violations).
+ignore = ["E501"]
+# Check also naming conventions (https://docs.astral.sh/ruff/rules/#pep8-naming-n)
+extend-select = ["N"]

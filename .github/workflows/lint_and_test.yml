@@ -32,14 +32,16 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .venv
-          key: venv-${{ steps.setup-python.outputs.python-version }}
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction --no-root
 
       - name: Lint
-        run: poetry run black --config black.py.toml . --check
+        run: |
+          poetry run black --config black.py.toml . --check
+          poetry run ruff check .
 
       - name: Test
         run: poetry run pytest --cov=ai_document_search_backend --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov-fail-under=70 | tee pytest-coverage.txt

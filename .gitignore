@@ -1,3 +1,5 @@
+__pycache__
+
 # Test outputs
 .pytest_cache
 htmlcov
@@ -7,4 +9,6 @@ pytest-coverage.txt
 
 # Private data
 data
+
+# Secrets
 .env

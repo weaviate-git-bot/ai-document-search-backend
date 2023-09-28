@@ -15,7 +15,9 @@ if os.path.exists(DATA_DOWNLOAD_FOLDER):
 os.makedirs(DATA_DOWNLOAD_FOLDER)
 
 documents = pd.read_excel(SOURCE_DATA_PATH, engine="openpyxl", sheet_name="Documents")
-real_estate_bonds = pd.read_excel(SOURCE_DATA_PATH, engine="openpyxl", sheet_name="116 Real Estate", usecols=range(19))
+real_estate_bonds = pd.read_excel(
+    SOURCE_DATA_PATH, engine="openpyxl", sheet_name="116 Real Estate", usecols=range(19)
+)
 df = documents.merge(real_estate_bonds, on="isin", how="inner")
 # df = df[df["Currency"] == "EUR"]  # try getting only English ones
 df = df[df["MarketNewsTypeName"] == "BondTerms"]
