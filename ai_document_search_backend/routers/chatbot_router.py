@@ -9,8 +9,12 @@ from ai_document_search_backend.services.chatbot_service import ChatbotService
 router = APIRouter(prefix="/chatbot", tags=["chatbot"])
 
 
+class ChatbotAnswer(BaseModel):
+    text: str
+
+
 class ChatbotResponse(BaseModel):
-    answer: str
+    answer: ChatbotAnswer
 
 
 class ChatbotRequest(BaseModel):
@@ -23,5 +27,6 @@ async def question(
     request: ChatbotRequest,
     chatbot_service: ChatbotService = Depends(Provide[Container.chatbot_service]),
 ) -> ChatbotResponse:
-    answer = chatbot_service.answer(request.question)
+    text = chatbot_service.answer(request.question)
+    answer = ChatbotAnswer(text=text)
     return ChatbotResponse(answer=answer)

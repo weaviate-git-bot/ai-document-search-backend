@@ -40,6 +40,6 @@ class ChatbotService(BaseService):
         """Answer the question"""
         docs = vectorstore.similarity_search(question)
         qa_chain = RetrievalQA.from_chain_type(llm, retriever=vectorstore.as_retriever())
-        answer = qa_chain({"query": question})["result"]
-        return answer.strip()
+        text = qa_chain({"query": question})["result"]
+        return text.strip()
         # return question
