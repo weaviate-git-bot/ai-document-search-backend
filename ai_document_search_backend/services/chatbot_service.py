@@ -22,9 +22,7 @@ loader = PyPDFDirectoryLoader(PDF_DIR_PATH)
 data = loader.load()
 
 # Split text into chunks
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=500, chunk_overlap=0
-)  # Context-aware splitters keep the location ("context") of each split in the original Document - useful for later
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
 all_splits = text_splitter.split_documents(data)
 
 # Store in vectorstore - chroma stores locally
@@ -42,4 +40,3 @@ class ChatbotService(BaseService):
         qa_chain = RetrievalQA.from_chain_type(llm, retriever=vectorstore.as_retriever())
         text = qa_chain({"query": question})["result"]
         return text.strip()
-        # return question
