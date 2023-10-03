@@ -56,10 +56,7 @@ class AuthService(BaseService):
             return False
         if not self.__verify_password(password, user.hashed_password):
             return False
-        self.logger.debug(
-            "User %s has been successfully authenticated",
-            user.username,
-        )
+        self.logger.info(f"User {user.username} has been successfully authenticated")
         return user
 
     def create_access_token(self, data: dict) -> Token:

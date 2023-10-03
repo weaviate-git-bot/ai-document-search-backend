@@ -3,3 +3,7 @@ default:
 auth:
   algorithm: "HS256"
   access_token_expire_minutes: 30
+weaviate:
+  url: "https://ai-document-search-backend-dev-95avppln.weaviate.network"
+chatbot:
+  verbose: false

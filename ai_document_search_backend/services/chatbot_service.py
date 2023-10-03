@@ -1,42 +1,78 @@
-from dotenv import load_dotenv
-
-from langchain.llms import OpenAI
+import weaviate
+from langchain.chains import ConversationalRetrievalChain
+from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import PyPDFDirectoryLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Chroma
-from langchain.chains import RetrievalQA
+from langchain.memory import ConversationSummaryMemory
+from langchain.vectorstores import Weaviate
+from pydantic import BaseModel
 
 from ai_document_search_backend.services.base_service import BaseService
-from ai_document_search_backend.utils.relative_path_from_file import (
-    relative_path_from_file,
-)
 
 
-load_dotenv()
-
-PDF_DIR_PATH = relative_path_from_file(__file__, "../../data/")
-
-# Load PDF
-loader = PyPDFDirectoryLoader(PDF_DIR_PATH)
-data = loader.load()
-
-# Split text into chunks
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
-all_splits = text_splitter.split_documents(data)
-
-# Store in vectorstore - chroma stores locally
-vectorstore = Chroma.from_documents(documents=all_splits, embedding=OpenAIEmbeddings())
-
-
-# Generate
-llm = OpenAI()
+class ChatbotAnswer(BaseModel):
+    text: str
 
 
 class ChatbotService(BaseService):
-    def answer(self, question: str) -> str:
+    def __init__(
+        self,
+        weaviate_url: str,
+        weaviate_api_key: str,
+        openai_api_key: str,
+        verbose: bool = False,
+    ):
+        self.client = weaviate.Client(
+            url=weaviate_url,
+            auth_client_secret=weaviate.AuthApiKey(weaviate_api_key),
+        )
+        self.embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
+        self.openai_api_key = openai_api_key
+        self.weaviate_class_name = "UnstructuredDocument"
+        self.verbose = verbose
+
+        super().__init__()
+
+    def store(self, pdf_dir_path: str) -> None:
+        """Store the documents in the vectorstore"""
+        self.logger.info("Loading PDFs")
+        loader = PyPDFDirectoryLoader(pdf_dir_path)
+        data_pypdf = loader.load()
+
+        self.logger.info(f"Storing {len(data_pypdf)} documents in Weaviate")
+        Weaviate.from_documents(
+            documents=data_pypdf,
+            client=self.client,
+            index_name=self.weaviate_class_name,
+            by_text=False,
+            embedding=self.embeddings,
+        )
+
+    def answer(self, question: str) -> ChatbotAnswer:
         """Answer the question"""
-        vectorstore.similarity_search(question)
-        qa_chain = RetrievalQA.from_chain_type(llm, retriever=vectorstore.as_retriever())
-        text = qa_chain({"query": question})["result"]
-        return text.strip()
+        vectorstore = Weaviate(
+            self.client,
+            index_name=self.weaviate_class_name,
+            by_text=False,
+            embedding=self.embeddings,
+            text_key="text",
+        )
+        llm = ChatOpenAI(openai_api_key=self.openai_api_key)
+        memory = ConversationSummaryMemory(
+            llm=llm,
+            memory_key="chat_history",
+            output_key="answer",
+            return_messages=True,
+        )
+        qa = ConversationalRetrievalChain.from_llm(
+            llm=llm,
+            retriever=vectorstore.as_retriever(),
+            memory=memory,
+            verbose=self.verbose,
+            return_source_documents=True,
+        )
+
+        self.logger.info(f"Answering question: {question}")
+        answer_text = qa(question)["answer"]
+        self.logger.info(f"Answer: {answer_text}")
+        return ChatbotAnswer(text=answer_text)

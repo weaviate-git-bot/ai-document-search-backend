@@ -28,11 +28,18 @@ class Container(containers.DeclarativeContainer):
         SummarizationService,
     )
 
+    load_dotenv()
+    openai_api_key = os.getenv("APP_OPENAI_API_KEY")
+    weaviate_api_key = os.getenv("APP_WEAVIATE_API_KEY")
+
     chatbot_service = providers.Factory(
         ChatbotService,
+        weaviate_url=config.weaviate.url,
+        weaviate_api_key=weaviate_api_key,
+        openai_api_key=openai_api_key,
+        verbose=config.chatbot.verbose,
     )
 
-    load_dotenv()
     secret_key = os.getenv("AUTH_SECRET_KEY")
     username = os.getenv("AUTH_USERNAME")
     password = os.getenv("AUTH_PASSWORD")

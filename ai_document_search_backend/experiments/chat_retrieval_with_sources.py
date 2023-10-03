@@ -22,8 +22,7 @@ WEAVIATE_URL = "http://localhost:8080"
 PDF_FILE_PATH = relative_path_from_file(__file__, "../../data/pdfs/NO0010914682_LA_20201217.PDF")
 PDF_DIR_PATH = relative_path_from_file(__file__, "../../data/pdfs_subset/")
 
-# Load OPENAI_API_KEY
-dotenv.load_dotenv()
+OPENAI_API_KEY = dotenv.dotenv_values()["APP_OPENAI_API_KEY"]
 
 # 1.+2. Load + Split
 
@@ -57,7 +56,7 @@ data_pdfplumber = loader.load()
 # 3. Store
 vectorstore = Weaviate.from_documents(
     documents=data_pypdf,
-    embedding=OpenAIEmbeddings(),
+    embedding=OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY),
     weaviate_url=WEAVIATE_URL,
     by_text=False,
 )
@@ -66,7 +65,7 @@ vectorstore = Weaviate.from_documents(
 retriever = vectorstore.as_retriever()
 
 # 5.+6. Generate + Chat
-llm = ChatOpenAI()
+llm = ChatOpenAI(openai_api_key=OPENAI_API_KEY)
 memory = ConversationSummaryMemory(
     llm=llm, memory_key="chat_history", output_key="answer", return_messages=True
 )
