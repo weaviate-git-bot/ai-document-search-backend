@@ -43,6 +43,10 @@ def test_not_authenticated():
 
 
 def test_chatbot_response(get_token):
+    """
+    This test runs against real OpenAI API and Weaviate instance.
+    APP_OPENAI_API_KEY and APP_WEAVIATE_API_KEY environment variables must be set.
+    """
     response = client.post(
         "/chatbot/",
         headers={"Authorization": f"Bearer {get_token}"},
