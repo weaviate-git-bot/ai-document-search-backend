@@ -1,3 +1,4 @@
+import pandas as pd
 import weaviate
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
@@ -10,8 +11,15 @@ from pydantic import BaseModel
 from ai_document_search_backend.services.base_service import BaseService
 
 
+class Source(BaseModel):
+    isin: str
+    link: str
+    page: int
+
+
 class ChatbotAnswer(BaseModel):
     text: str
+    sources: list[Source]
 
 
 class ChatbotService(BaseService):
@@ -28,6 +36,7 @@ class ChatbotService(BaseService):
             url=weaviate_url,
             auth_client_secret=weaviate.AuthApiKey(weaviate_api_key),
         )
+
         self.embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
         self.openai_api_key = openai_api_key
         self.weaviate_class_name = "UnstructuredDocument"
@@ -36,11 +45,18 @@ class ChatbotService(BaseService):
 
         super().__init__()
 
-    def store(self, pdf_dir_path: str) -> None:
+    def store(self, pdf_dir_path: str, metadata_path: str) -> None:
         """Store the documents in the vectorstore"""
+
         self.logger.info("Loading PDFs")
         loader = PyPDFDirectoryLoader(pdf_dir_path)
         data_pypdf = loader.load()
+        df = pd.read_csv(metadata_path)
+        for doc in data_pypdf:
+            filename = doc.metadata["source"].split("/")[-1]
+            metadata_row = df[df["filename"] == filename]
+            doc.metadata["isin"] = metadata_row["isin"].values[0]
+            doc.metadata["link"] = metadata_row["link"].values[0]
 
         self.logger.info(f"Storing {len(data_pypdf)} documents in Weaviate")
         Weaviate.from_documents(
@@ -53,12 +69,14 @@ class ChatbotService(BaseService):
 
     def answer(self, question: str) -> ChatbotAnswer:
         """Answer the question"""
+
         vectorstore = Weaviate(
             self.client,
             index_name=self.weaviate_class_name,
             by_text=False,
             embedding=self.embeddings,
             text_key="text",
+            attributes=["isin", "link", "page"],
         )
         llm = ChatOpenAI(openai_api_key=self.openai_api_key, temperature=self.temperature)
         memory = ConversationSummaryMemory(
@@ -76,6 +94,20 @@ class ChatbotService(BaseService):
         )
 
         self.logger.info(f"Answering question: {question}")
-        answer_text = qa(question)["answer"]
+        result = qa(question)
+        answer_text = result["answer"]
         self.logger.info(f"Answer: {answer_text}")
-        return ChatbotAnswer(text=answer_text)
+        sources = [
+            Source(
+                isin=source.metadata["isin"],
+                link=source.metadata["link"],
+                page=source.metadata["page"],
+            )
+            for source in result["source_documents"]
+        ]
+        return ChatbotAnswer(text=answer_text, sources=sources)
+
+    def delete_schema(self) -> None:
+        """Delete the schema"""
+
+        self.client.schema.delete_all()
