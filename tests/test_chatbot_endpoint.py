@@ -56,6 +56,28 @@ def test_chatbot_response(get_token):
     assert response.json() == {
         "answer": {
             "text": ANY_STR,
+            "sources": [
+                {
+                    "isin": "NO0010768492",
+                    "link": "https://feed.stamdata.com/documents/NO0010768492_LA_20160704.pdf",
+                    "page": 8,
+                },
+                {
+                    "isin": "NO0010914682",
+                    "link": "https://feed.stamdata.com/documents/NO0010914682_LA_20201217.pdf",
+                    "page": 24,
+                },
+                {
+                    "isin": "NO0010914682",
+                    "link": "https://feed.stamdata.com/documents/NO0010914682_LA_20201217.pdf",
+                    "page": 6,
+                },
+                {
+                    "isin": "NO0010768492",
+                    "link": "https://feed.stamdata.com/documents/NO0010768492_LA_20160704.pdf",
+                    "page": 4,
+                },
+            ],
         }
     }
     assert response.json()["answer"]["text"].startswith(
