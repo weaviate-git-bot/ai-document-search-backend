@@ -1,4 +1,5 @@
 import pytest
+from anys import ANY_STR
 from dependency_injector import providers
 from fastapi.testclient import TestClient
 
@@ -37,11 +38,26 @@ client = TestClient(app)
 
 
 def test_not_authenticated():
-    response = client.get("/users/me")
+    response = client.post("/chatbot/", json={"question": "What is the Loan to value ratio?"})
     assert response.status_code == 401
 
 
-def test_get_current_user_when_authenticated(get_token):
-    response = client.get("/users/me", headers={"Authorization": f"Bearer {get_token}"})
+def test_chatbot_response(get_token):
+    """
+    This test runs against real OpenAI API and Weaviate instance.
+    APP_OPENAI_API_KEY and APP_WEAVIATE_API_KEY environment variables must be set.
+    """
+    response = client.post(
+        "/chatbot/",
+        headers={"Authorization": f"Bearer {get_token}"},
+        json={"question": "What is the Loan to value ratio?"},
+    )
     assert response.status_code == 200
-    assert response.json() == {"username": test_username}
+    assert response.json() == {
+        "answer": {
+            "text": ANY_STR,
+        }
+    }
+    assert response.json()["answer"]["text"].startswith(
+        "The Loan to Value (LTV) ratio is a financial metric"
+    )

@@ -37,7 +37,7 @@ def get_token():
 client = TestClient(app)
 
 
-def test_unathorized():
+def test_not_authenticated():
     response = client.get("/summarization")
     assert response.status_code == 401
 
@@ -69,7 +69,8 @@ def test_missing_text_parameter(get_token):
 
 def test_default_summary_length(get_token):
     response = client.get(
-        "/summarization?text=Hello%20World", headers={"Authorization": f"Bearer {get_token}"}
+        "/summarization?text=Hello%20World",
+        headers={"Authorization": f"Bearer {get_token}"},
     )
     assert response.status_code == 200
     assert response.json() == {"summary": "Hello Worl"}

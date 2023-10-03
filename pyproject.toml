@@ -26,6 +26,7 @@ tiktoken = "^0.5.1"
 weaviate-client = "^3.24.1"
 unstructured = {extras = ["pdf"], version = "^0.10.15"}
 pymupdf = "^1.23.3"
+chromadb = "^0.4.13"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -34,6 +35,7 @@ pytest-cov = "^4.1.0"
 httpx = "^0.24.1"
 black = "^23.9.0"
 ruff = "^0.0.290"
+anys = "^0.3.0"
 
 [build-system]
 requires = ["poetry-core"]
