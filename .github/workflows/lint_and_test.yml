@@ -44,6 +44,9 @@ jobs:
           poetry run ruff check .
 
       - name: Test
+        env:
+          APP_OPENAI_API_KEY: ${{ secrets.APP_OPENAI_API_KEY }}
+          APP_WEAVIATE_API_KEY: ${{ secrets.APP_WEAVIATE_API_KEY }}
         run: |
           set -o pipefail
           poetry run pytest --cov=ai_document_search_backend --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov-fail-under=70 | tee pytest-coverage.txt
