@@ -52,9 +52,7 @@ def test_summarize_text(get_token):
 
 
 def test_missing_text_parameter(get_token):
-    response = client.get(
-        "/summarization", headers={"Authorization": f"Bearer {get_token}"}
-    )
+    response = client.get("/summarization", headers={"Authorization": f"Bearer {get_token}"})
     assert response.status_code == 422
     assert response.json() == {
         "detail": [

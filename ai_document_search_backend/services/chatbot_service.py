@@ -60,9 +60,7 @@ class ChatbotService(BaseService):
             embedding=self.embeddings,
             text_key="text",
         )
-        llm = ChatOpenAI(
-            openai_api_key=self.openai_api_key, temperature=self.temperature
-        )
+        llm = ChatOpenAI(openai_api_key=self.openai_api_key, temperature=self.temperature)
         memory = ConversationSummaryMemory(
             llm=llm,
             memory_key="chat_history",

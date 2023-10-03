@@ -38,9 +38,7 @@ client = TestClient(app)
 
 
 def test_not_authenticated():
-    response = client.post(
-        "/chatbot/", json={"question": "What is the Loan to value ratio?"}
-    )
+    response = client.post("/chatbot/", json={"question": "What is the Loan to value ratio?"})
     assert response.status_code == 401
 
 
