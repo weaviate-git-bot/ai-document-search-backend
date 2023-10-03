@@ -17,10 +17,12 @@ class ChatbotAnswer(BaseModel):
 class ChatbotService(BaseService):
     def __init__(
         self,
+        *,
         weaviate_url: str,
         weaviate_api_key: str,
         openai_api_key: str,
         verbose: bool = False,
+        temperature: float = 0,
     ):
         self.client = weaviate.Client(
             url=weaviate_url,
@@ -30,6 +32,7 @@ class ChatbotService(BaseService):
         self.openai_api_key = openai_api_key
         self.weaviate_class_name = "UnstructuredDocument"
         self.verbose = verbose
+        self.temperature = temperature
 
         super().__init__()
 
@@ -57,7 +60,9 @@ class ChatbotService(BaseService):
             embedding=self.embeddings,
             text_key="text",
         )
-        llm = ChatOpenAI(openai_api_key=self.openai_api_key)
+        llm = ChatOpenAI(
+            openai_api_key=self.openai_api_key, temperature=self.temperature
+        )
         memory = ConversationSummaryMemory(
             llm=llm,
             memory_key="chat_history",

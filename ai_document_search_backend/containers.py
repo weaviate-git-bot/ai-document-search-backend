@@ -38,6 +38,7 @@ class Container(containers.DeclarativeContainer):
         weaviate_api_key=weaviate_api_key,
         openai_api_key=openai_api_key,
         verbose=config.chatbot.verbose,
+        temperature=config.chatbot.temperature,
     )
 
     secret_key = os.getenv("AUTH_SECRET_KEY")

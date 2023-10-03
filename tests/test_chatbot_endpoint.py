@@ -1,5 +1,5 @@
 import pytest
-import json
+from anys import ANY_STR
 from dependency_injector import providers
 from fastapi.testclient import TestClient
 
@@ -26,26 +26,36 @@ def run_before_and_after_tests():
     app.container.auth_service.reset_override()
 
 
+@pytest.fixture
+def get_token():
+    response = client.post(
+        "/auth/token", data={"username": test_username, "password": test_password}
+    )
+    return response.json()["access_token"]
+
+
 client = TestClient(app)
 
 
 def test_not_authenticated():
-    response = client.post("/chatbot/", data={"question": ""})
+    response = client.post(
+        "/chatbot/", json={"question": "What is the Loan to value ratio?"}
+    )
     assert response.status_code == 401
 
 
-def test_chatbot_response():
-    response = client.post(
-        "/auth/token", data={"username": test_username, "password": test_password}
-    )
-    assert response.status_code == 200
-    access_token = response.json()["access_token"]
-    assert access_token
-    assert response.json()["token_type"] == "bearer"
-
+def test_chatbot_response(get_token):
     response = client.post(
         "/chatbot/",
-        headers={"Authorization": f"Bearer {access_token}"},
-        data=json.dumps({"question": "What is LTV?"}),
+        headers={"Authorization": f"Bearer {get_token}"},
+        json={"question": "What is the Loan to value ratio?"},
     )
     assert response.status_code == 200
+    assert response.json() == {
+        "answer": {
+            "text": ANY_STR,
+        }
+    }
+    assert response.json()["answer"]["text"].startswith(
+        "The Loan to Value (LTV) ratio is a financial metric"
+    )

@@ -25,6 +25,14 @@ def run_before_and_after_tests():
     app.container.auth_service.reset_override()
 
 
+@pytest.fixture
+def get_token():
+    response = client.post(
+        "/auth/token", data={"username": test_username, "password": test_password}
+    )
+    return response.json()["access_token"]
+
+
 client = TestClient(app)
 
 
@@ -33,15 +41,7 @@ def test_not_authenticated():
     assert response.status_code == 401
 
 
-def test_get_current_user_when_authenticated():
-    response = client.post(
-        "/auth/token", data={"username": test_username, "password": test_password}
-    )
-    assert response.status_code == 200
-    access_token = response.json()["access_token"]
-    assert access_token
-    assert response.json()["token_type"] == "bearer"
-
-    response = client.get("/users/me", headers={"Authorization": f"Bearer {access_token}"})
+def test_get_current_user_when_authenticated(get_token):
+    response = client.get("/users/me", headers={"Authorization": f"Bearer {get_token}"})
     assert response.status_code == 200
     assert response.json() == {"username": test_username}
