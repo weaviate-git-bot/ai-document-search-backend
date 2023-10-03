@@ -18,8 +18,11 @@ from ai_document_search_backend.utils.relative_path_from_file import (
     relative_path_from_file,
 )
 
+# Start Weaviate with `docker compose -f docker-compose-weaviate.yml up -d`
 WEAVIATE_URL = "http://localhost:8080"
-PDF_FILE_PATH = relative_path_from_file(__file__, "../../data/pdfs/NO0010914682_LA_20201217.PDF")
+PDF_FILE_PATH = relative_path_from_file(
+    __file__, "../../data/pdfs/NO0010914682_LA_20201217.PDF"
+)
 PDF_DIR_PATH = relative_path_from_file(__file__, "../../data/pdfs_subset/")
 
 OPENAI_API_KEY = dotenv.dotenv_values()["APP_OPENAI_API_KEY"]
@@ -79,7 +82,9 @@ def print_with_sources(result):
     print(f"Answer: {result['answer']}")
     print("Sources:")
     for source in result["source_documents"]:
-        print(f"\tPage {source.metadata['page']} of {Path(source.metadata['source']).name}.")
+        print(
+            f"\tPage {source.metadata['page']} of {Path(source.metadata['source']).name}."
+        )
     print("-" * 50)
 
 
