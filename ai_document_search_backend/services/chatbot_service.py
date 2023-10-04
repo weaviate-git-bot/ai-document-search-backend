@@ -70,6 +70,7 @@ class ChatbotService(BaseService):
 
     def answer(self, question: str, username: str) -> ChatbotAnswer:
         """Answer the question"""
+
         vectorstore = Weaviate(
             self.client,
             index_name=self.weaviate_class_name,
@@ -79,16 +80,9 @@ class ChatbotService(BaseService):
             attributes=["isin", "link", "page"],
         )
         llm = ChatOpenAI(openai_api_key=self.openai_api_key, temperature=self.temperature)
-        # memory = ConversationSummaryMemory(
-        #     llm=llm,
-        #     memory_key="chat_history",
-        #     output_key="answer",
-        #     return_messages=True,
-        # )
         qa = ConversationalRetrievalChain.from_llm(
             llm=llm,
             retriever=vectorstore.as_retriever(),
-            # memory=memory,
             verbose=self.verbose,
             return_source_documents=True,
         )
