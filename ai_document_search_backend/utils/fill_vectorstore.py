@@ -18,7 +18,7 @@ def main(chatbot_service: ChatbotService = Provide[Container.chatbot_service]) -
 
     chatbot_service.store(PDF_DIR_PATH, METADATA_PATH)
 
-    chatbot_service.answer("What is the Loan to value ratio?")
+    chatbot_service.answer("What is the Loan to value ratio?", "user1")
 
 
 if __name__ == "__main__":

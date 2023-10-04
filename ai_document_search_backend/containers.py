@@ -4,6 +4,7 @@ from dependency_injector import containers, providers
 from dotenv import load_dotenv
 
 from .services.auth_service import AuthService
+from .services.in_memory_chat_history_service import InMemoryChatHistoryService
 from .services.summarization_service import SummarizationService
 from .services.chatbot_service import ChatbotService
 from .utils.relative_path_from_file import relative_path_from_file
@@ -29,11 +30,17 @@ class Container(containers.DeclarativeContainer):
     )
 
     load_dotenv()
+
+    chat_history_service = providers.Singleton(
+        InMemoryChatHistoryService,
+    )
+
     openai_api_key = os.getenv("APP_OPENAI_API_KEY")
     weaviate_api_key = os.getenv("APP_WEAVIATE_API_KEY")
 
     chatbot_service = providers.Factory(
         ChatbotService,
+        chat_history_service=chat_history_service,
         weaviate_url=config.weaviate.url,
         weaviate_api_key=weaviate_api_key,
         openai_api_key=openai_api_key,

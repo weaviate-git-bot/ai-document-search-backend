@@ -4,11 +4,11 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import PyPDFDirectoryLoader
 from langchain.embeddings import OpenAIEmbeddings
-from langchain.memory import ConversationSummaryMemory
 from langchain.vectorstores import Weaviate
 from pydantic import BaseModel
 
 from ai_document_search_backend.services.base_service import BaseService
+from ai_document_search_backend.services.chat_history_service import ChatHistoryService
 
 
 class Source(BaseModel):
@@ -26,17 +26,18 @@ class ChatbotService(BaseService):
     def __init__(
         self,
         *,
+        chat_history_service: ChatHistoryService,
         weaviate_url: str,
         weaviate_api_key: str,
         openai_api_key: str,
         verbose: bool = False,
         temperature: float = 0,
     ):
+        self.chat_history_service = chat_history_service
         self.client = weaviate.Client(
             url=weaviate_url,
             auth_client_secret=weaviate.AuthApiKey(weaviate_api_key),
         )
-
         self.embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
         self.openai_api_key = openai_api_key
         self.weaviate_class_name = "UnstructuredDocument"
@@ -67,9 +68,8 @@ class ChatbotService(BaseService):
             embedding=self.embeddings,
         )
 
-    def answer(self, question: str) -> ChatbotAnswer:
+    def answer(self, question: str, username: str) -> ChatbotAnswer:
         """Answer the question"""
-
         vectorstore = Weaviate(
             self.client,
             index_name=self.weaviate_class_name,
@@ -79,22 +79,24 @@ class ChatbotService(BaseService):
             attributes=["isin", "link", "page"],
         )
         llm = ChatOpenAI(openai_api_key=self.openai_api_key, temperature=self.temperature)
-        memory = ConversationSummaryMemory(
-            llm=llm,
-            memory_key="chat_history",
-            output_key="answer",
-            return_messages=True,
-        )
+        # memory = ConversationSummaryMemory(
+        #     llm=llm,
+        #     memory_key="chat_history",
+        #     output_key="answer",
+        #     return_messages=True,
+        # )
         qa = ConversationalRetrievalChain.from_llm(
             llm=llm,
             retriever=vectorstore.as_retriever(),
-            memory=memory,
+            # memory=memory,
             verbose=self.verbose,
             return_source_documents=True,
         )
 
+        chat_history = self.chat_history_service.get_chat_history(username)
+
         self.logger.info(f"Answering question: {question}")
-        result = qa(question)
+        result = qa({"question": question, "chat_history": chat_history})
         answer_text = result["answer"]
         self.logger.info(f"Answer: {answer_text}")
         sources = [
@@ -105,6 +107,9 @@ class ChatbotService(BaseService):
             )
             for source in result["source_documents"]
         ]
+
+        self.chat_history_service.add_chat_history(username, question, answer_text)
+
         return ChatbotAnswer(text=answer_text, sources=sources)
 
     def delete_schema(self) -> None:
