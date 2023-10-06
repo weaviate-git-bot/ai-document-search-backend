@@ -19,9 +19,9 @@ df = pd.read_csv(SOURCE_DATA_PATH)
 pdf_links = df["link"].tolist()
 print(f"Number of PDFs: {len(pdf_links)}")
 
-for pdf_link in pdf_links:
+for i, pdf_link in enumerate(pdf_links):
     filename = pdf_link.split("/")[-1]
-    print(f"Downloading {filename}...")
+    print(f"Downloading {i+1}/{len(pdf_links)}: {filename}")
     res = requests.get(pdf_link)
     with open(Path(DATA_DOWNLOAD_FOLDER) / filename, "wb") as f:
         f.write(res.content)

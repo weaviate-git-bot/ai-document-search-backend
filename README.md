@@ -69,3 +69,9 @@ AUTH_PASSWORD=any_password
 - Add package only for development: `poetry add <package> --group dev`, e.g. `poetry add jupyter --group dev`.
 - Regenerate `poetry.lock` file: `poetry lock --no-update`.
 - Remove package: `poetry remove <package>`, e.g. `poetry remove numpy`.
+
+### Populating the vector database
+- Download `NTNU2.xlsx` from the customer and save it to `data/NTNU2.xlsx`. This file is private and is therefore not included in the repository.
+- Run `poetry run python ai_document_search_backend/scripts/prepare_data.py` to pre-process the data.
+- Run `poetry run python ai_document_search_backend/scripts/download_documents.py` to download the PDFs into a local folder.
+- Run `poetry run python ai_document_search_backend/scripts/fill_vectorstore.py` to store the documents in the vector database.
