@@ -13,6 +13,7 @@ from ai_document_search_backend.services.base_service import BaseService
 
 class Source(BaseModel):
     isin: str
+    shortname: str
     link: str
     page: int
 
@@ -39,9 +40,11 @@ class ChatbotService(BaseService):
 
         self.embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
         self.openai_api_key = openai_api_key
-        self.weaviate_class_name = "UnstructuredDocument"
         self.verbose = verbose
         self.temperature = temperature
+
+        self.weaviate_class_name = "UnstructuredDocument"
+        self.custom_metadata_properties = ["isin", "shortname", "link"]
 
         super().__init__()
 
@@ -55,8 +58,8 @@ class ChatbotService(BaseService):
         for doc in data_pypdf:
             filename = doc.metadata["source"].split("/")[-1]
             metadata_row = df[df["filename"] == filename]
-            doc.metadata["isin"] = metadata_row["isin"].values[0]
-            doc.metadata["link"] = metadata_row["link"].values[0]
+            for prop in self.custom_metadata_properties:
+                doc.metadata[prop] = metadata_row[prop].values[0]
 
         self.logger.info(f"Storing {len(data_pypdf)} documents in Weaviate")
         Weaviate.from_documents(
@@ -76,7 +79,7 @@ class ChatbotService(BaseService):
             by_text=False,
             embedding=self.embeddings,
             text_key="text",
-            attributes=["isin", "link", "page"],
+            attributes=self.custom_metadata_properties + ["page"],
         )
         llm = ChatOpenAI(openai_api_key=self.openai_api_key, temperature=self.temperature)
         memory = ConversationSummaryMemory(
@@ -100,6 +103,7 @@ class ChatbotService(BaseService):
         sources = [
             Source(
                 isin=source.metadata["isin"],
+                shortname=source.metadata["shortname"],
                 link=source.metadata["link"],
                 page=source.metadata["page"],
             )

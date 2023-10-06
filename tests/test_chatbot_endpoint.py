@@ -61,21 +61,25 @@ def test_chatbot_response(get_token):
                     "isin": "NO0010768492",
                     "link": "https://feed.stamdata.com/documents/NO0010768492_LA_20160704.pdf",
                     "page": 8,
+                    "shortname": "ML 33 Holding AS 16/23 5,50% STEP C",
                 },
                 {
                     "isin": "NO0010914682",
                     "link": "https://feed.stamdata.com/documents/NO0010914682_LA_20201217.pdf",
                     "page": 24,
+                    "shortname": "Merkantilbygg Holding AS 20/22 FRN FLOOR",
                 },
                 {
                     "isin": "NO0010914682",
                     "link": "https://feed.stamdata.com/documents/NO0010914682_LA_20201217.pdf",
                     "page": 6,
+                    "shortname": "Merkantilbygg Holding AS 20/22 FRN FLOOR",
                 },
                 {
                     "isin": "NO0010768492",
                     "link": "https://feed.stamdata.com/documents/NO0010768492_LA_20160704.pdf",
                     "page": 4,
+                    "shortname": "ML 33 Holding AS 16/23 5,50% STEP C",
                 },
             ],
         }
