@@ -71,7 +71,12 @@ AUTH_PASSWORD=any_password
 - Remove package: `poetry remove <package>`, e.g. `poetry remove numpy`.
 
 ### Populating the vector database
-- Download `NTNU2.xlsx` from the customer and save it to `data/NTNU2.xlsx`. This file is private and is therefore not included in the repository.
+
+- Download `NTNU2.xlsx` from the customer and save it to `data/NTNU2.xlsx`. This file is private and is therefore not
+  included in the repository.
 - Run `poetry run python ai_document_search_backend/scripts/prepare_data.py` to pre-process the data.
-- Run `poetry run python ai_document_search_backend/scripts/download_documents.py` to download the PDFs into a local folder.
-- Run `poetry run python ai_document_search_backend/scripts/fill_vectorstore.py` to store the documents in the vector database.
+- Run `poetry run python ai_document_search_backend/scripts/download_documents.py [limit]` to download the PDFs into a
+  local folder. The limit is optional and specifies the number of documents to download. If not specified, all documents
+  will be downloaded.
+- Run `poetry run python ai_document_search_backend/scripts/fill_vectorstore.py` to store the documents in the vector
+  database.
