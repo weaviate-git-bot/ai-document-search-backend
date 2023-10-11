@@ -60,13 +60,10 @@ class AuthService(BaseService):
         return user
 
     def create_access_token(self, data: dict) -> Token:
-        expires_delta = timedelta(minutes=self.access_token_expire_minutes)
         to_encode = data.copy()
-        if expires_delta:
-            expire = datetime.utcnow() + expires_delta
-        else:
-            expire = datetime.utcnow() + timedelta(minutes=15)
-        to_encode.update({"exp": expire})
+        if self.access_token_expire_minutes > 0:
+            expire = datetime.utcnow() + timedelta(minutes=self.access_token_expire_minutes)
+            to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
         return Token(access_token=encoded_jwt, token_type="bearer")
 

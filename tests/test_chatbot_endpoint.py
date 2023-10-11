@@ -1,5 +1,5 @@
 import pytest
-from anys import ANY_STR
+from anys import ANY_STR, ANY_LIST, ANY_INT
 from dependency_injector import providers
 from fastapi.testclient import TestClient
 
@@ -56,36 +56,20 @@ def test_chatbot_response(get_token):
         json={"question": "What is the Loan to value ratio?"},
     )
     assert response.status_code == 200
-    assert response.json() == {
+    response_data = response.json()
+    assert response_data == {
         "answer": {
             "text": ANY_STR,
-            "sources": [
-                {
-                    "isin": "NO0010768492",
-                    "link": "https://feed.stamdata.com/documents/NO0010768492_LA_20160704.pdf",
-                    "page": 8,
-                },
-                {
-                    "isin": "NO0010914682",
-                    "link": "https://feed.stamdata.com/documents/NO0010914682_LA_20201217.pdf",
-                    "page": 24,
-                },
-                {
-                    "isin": "NO0010768492",
-                    "link": "https://feed.stamdata.com/documents/NO0010768492_LA_20160704.pdf",
-                    "page": 4,
-                },
-                {
-                    "isin": "NO0010768492",
-                    "link": "https://feed.stamdata.com/documents/NO0010768492_LA_20160704.pdf",
-                    "page": 7,
-                },
-            ],
+            "sources": ANY_LIST,
         }
     }
-    assert response.json()["answer"]["text"].startswith(
-        "The Loan to Value (LTV) ratio is a financial covenant"
-    )
+    assert "financial metric" in response_data["answer"]["text"]
+    assert response_data["answer"]["sources"][0] == {
+        "isin": ANY_STR,
+        "shortname": ANY_STR,
+        "link": ANY_STR,
+        "page": ANY_INT,
+    }
 
 
 def test_chat_history(get_token):

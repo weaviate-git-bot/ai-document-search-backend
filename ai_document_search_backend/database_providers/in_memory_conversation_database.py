@@ -1,7 +1,10 @@
 from typing import Optional
 
-from ai_document_search_backend.database_providers.conversation_database import ConversationDatabase, Conversation, \
-    Message
+from ai_document_search_backend.database_providers.conversation_database import (
+    ConversationDatabase,
+    Conversation,
+    Message,
+)
 
 
 class InMemoryConversationDatabase(ConversationDatabase):

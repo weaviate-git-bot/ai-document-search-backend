@@ -1,12 +1,14 @@
 from datetime import datetime
 
-from ai_document_search_backend.database_providers.conversation_database import Conversation, ConversationDatabase, \
-    Message
+from ai_document_search_backend.database_providers.conversation_database import (
+    Conversation,
+    ConversationDatabase,
+    Message,
+)
 from ai_document_search_backend.services.base_service import BaseService
 
 
 class ConversationService(BaseService):
-
     def __init__(self, conversation_database: ConversationDatabase):
         self.conversation_database = conversation_database
 
@@ -19,7 +21,7 @@ class ConversationService(BaseService):
         return conversation
 
     def create_new_conversation(self, username: str) -> Conversation:
-        new_conversation = Conversation(createdAt=self.__get_current_time(), messages=[])
+        new_conversation = Conversation(created_at=self.__get_current_time(), messages=[])
         self.conversation_database.add_conversation(username, new_conversation)
         return new_conversation
 

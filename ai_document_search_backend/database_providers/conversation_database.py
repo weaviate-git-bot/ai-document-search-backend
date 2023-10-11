@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 class Source(BaseModel):
     isin: str
+    shortname: str
     link: str
     page: int
 
@@ -17,7 +18,7 @@ class Message(BaseModel):
 
 
 class Conversation(BaseModel):
-    createdAt: str
+    created_at: str
     messages: list[Message]
 
 
