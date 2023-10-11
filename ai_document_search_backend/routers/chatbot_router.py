@@ -27,7 +27,6 @@ class ChatbotResponse(BaseModel):
 
 class ChatbotRequest(BaseModel):
     question: str
-    username: str
 
 
 @router.post("/")
@@ -38,6 +37,6 @@ async def question(
     auth_service: AuthService = Depends(Provide[Container.auth_service]),
     chatbot_service: ChatbotService = Depends(Provide[Container.chatbot_service]),
 ) -> ChatbotResponse:
-    auth_service.get_current_user(token)
-    answer = chatbot_service.answer(request.question, request.username)
+    user = auth_service.get_current_user(token)
+    answer = chatbot_service.answer(request.question, user.username)
     return ChatbotResponse(answer=answer)

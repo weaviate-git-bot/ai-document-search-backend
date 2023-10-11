@@ -3,10 +3,11 @@ import os
 from dependency_injector import containers, providers
 from dotenv import load_dotenv
 
+from .database_providers.in_memory_conversation_database import InMemoryConversationDatabase
 from .services.auth_service import AuthService
-from .services.in_memory_chat_history_service import InMemoryChatHistoryService
-from .services.summarization_service import SummarizationService
 from .services.chatbot_service import ChatbotService
+from .services.conversation_service import ConversationService
+from .services.summarization_service import SummarizationService
 from .utils.relative_path_from_file import relative_path_from_file
 
 CONFIG_PATH = relative_path_from_file(__file__, "../config.yml")
@@ -20,6 +21,8 @@ class Container(containers.DeclarativeContainer):
             ".routers.auth_router",
             ".routers.users_router",
             ".routers.chatbot_router",
+            ".routers.conversation_router",
+            ".database_providers.conversation_database",
         ]
     )
 
@@ -31,8 +34,13 @@ class Container(containers.DeclarativeContainer):
 
     load_dotenv()
 
-    chat_history_service = providers.Singleton(
-        InMemoryChatHistoryService,
+    conversation_database = providers.Singleton(
+        InMemoryConversationDatabase,
+    )
+
+    conversation_service = providers.Factory(
+        ConversationService,
+        conversation_database=conversation_database,
     )
 
     openai_api_key = os.getenv("APP_OPENAI_API_KEY")
@@ -40,7 +48,8 @@ class Container(containers.DeclarativeContainer):
 
     chatbot_service = providers.Factory(
         ChatbotService,
-        chat_history_service=chat_history_service,
+        # TODO move out of chatbot_service
+        conversation_service=conversation_service,
         weaviate_url=config.weaviate.url,
         weaviate_api_key=weaviate_api_key,
         openai_api_key=openai_api_key,

@@ -40,7 +40,7 @@ client = TestClient(app)
 def test_not_authenticated():
     response = client.post(
         "/chatbot/",
-        json={"question": "What is the Loan to value ratio?", "username": test_username},
+        json={"question": "What is the Loan to value ratio?"},
     )
     assert response.status_code == 401
 
@@ -53,7 +53,7 @@ def test_chatbot_response(get_token):
     response = client.post(
         "/chatbot/",
         headers={"Authorization": f"Bearer {get_token}"},
-        json={"question": "What is the Loan to value ratio?", "username": "test_chatbot_response"},
+        json={"question": "What is the Loan to value ratio?"},
     )
     assert response.status_code == 200
     assert response.json() == {
@@ -96,7 +96,7 @@ def test_chat_history(get_token):
     response = client.post(
         "/chatbot/",
         headers={"Authorization": f"Bearer {get_token}"},
-        json={"question": "What is the Loan to value ratio?", "username": "test_chat_history"},
+        json={"question": "What is the Loan to value ratio?"},
     )
     assert response.status_code == 200
     assert response.json()["answer"]["text"].startswith(
@@ -106,7 +106,7 @@ def test_chat_history(get_token):
     response = client.post(
         "/chatbot/",
         headers={"Authorization": f"Bearer {get_token}"},
-        json={"question": "What is it in German?", "username": "test_chat_history"},
+        json={"question": "What is it in German?"},
     )
     assert response.status_code == 200
     assert response.json()["answer"]["text"].startswith(
