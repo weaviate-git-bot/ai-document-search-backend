@@ -63,7 +63,7 @@ def test_chatbot_response(get_token):
             "sources": ANY_LIST,
         }
     }
-    assert "financial metric" in response_data["answer"]["text"]
+    assert "The Loan to Value Ratio is the ratio" in response_data["answer"]["text"]
     assert response_data["answer"]["sources"][0] == {
         "isin": ANY_STR,
         "shortname": ANY_STR,
@@ -83,16 +83,12 @@ def test_chat_history(get_token):
         json={"question": "What is the Loan to value ratio?"},
     )
     assert response.status_code == 200
-    assert response.json()["answer"]["text"].startswith(
-        "The Loan to Value (LTV) ratio is a financial covenant"
-    )
+    assert "The Loan to Value Ratio is the ratio" in response.json()["answer"]["text"]
 
     response = client.post(
         "/chatbot/",
         headers={"Authorization": f"Bearer {get_token}"},
-        json={"question": "What is it in German?"},
+        json={"question": "What value should it not exceed?"},
     )
     assert response.status_code == 200
-    assert response.json()["answer"]["text"].startswith(
-        "Das Loan-to-Value (LTV)-Verhältnis wird auf Deutsch als Beleihungsauslauf bezeichnet."
-    )
+    assert "the maximum value that should not be exceeded is" in response.json()["answer"]["text"]
