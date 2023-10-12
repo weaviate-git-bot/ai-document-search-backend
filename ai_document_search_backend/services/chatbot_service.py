@@ -4,18 +4,15 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import PyPDFDirectoryLoader
 from langchain.embeddings import OpenAIEmbeddings
-from langchain.memory import ConversationSummaryMemory
 from langchain.vectorstores import Weaviate
 from pydantic import BaseModel
 
+from ai_document_search_backend.database_providers.conversation_database import (
+    Source,
+)
 from ai_document_search_backend.services.base_service import BaseService
 
-
-class Source(BaseModel):
-    isin: str
-    shortname: str
-    link: str
-    page: int
+Exchange = tuple[str, str]
 
 
 class ChatbotAnswer(BaseModel):
@@ -37,7 +34,6 @@ class ChatbotService(BaseService):
             url=weaviate_url,
             auth_client_secret=weaviate.AuthApiKey(weaviate_api_key),
         )
-
         self.embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
         self.openai_api_key = openai_api_key
         self.verbose = verbose
@@ -70,7 +66,7 @@ class ChatbotService(BaseService):
             embedding=self.embeddings,
         )
 
-    def answer(self, question: str) -> ChatbotAnswer:
+    def answer(self, question: str, chat_history: list[Exchange]) -> ChatbotAnswer:
         """Answer the question"""
 
         vectorstore = Weaviate(
@@ -82,22 +78,15 @@ class ChatbotService(BaseService):
             attributes=self.custom_metadata_properties + ["page"],
         )
         llm = ChatOpenAI(openai_api_key=self.openai_api_key, temperature=self.temperature)
-        memory = ConversationSummaryMemory(
-            llm=llm,
-            memory_key="chat_history",
-            output_key="answer",
-            return_messages=True,
-        )
         qa = ConversationalRetrievalChain.from_llm(
             llm=llm,
             retriever=vectorstore.as_retriever(),
-            memory=memory,
             verbose=self.verbose,
             return_source_documents=True,
         )
 
         self.logger.info(f"Answering question: {question}")
-        result = qa(question)
+        result = qa({"question": question, "chat_history": chat_history})
         answer_text = result["answer"]
         self.logger.info(f"Answer: {answer_text}")
         sources = [
@@ -109,6 +98,7 @@ class ChatbotService(BaseService):
             )
             for source in result["source_documents"]
         ]
+
         return ChatbotAnswer(text=answer_text, sources=sources)
 
     def delete_schema(self) -> None:

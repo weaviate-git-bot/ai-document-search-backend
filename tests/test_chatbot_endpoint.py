@@ -12,6 +12,9 @@ test_password = "test_password"
 
 @pytest.fixture(autouse=True)
 def run_before_and_after_tests():
+    # reset the conversation history before each test
+    app.container.conversation_database.reset()
+
     app.container.auth_service.override(
         providers.Factory(
             AuthService,
@@ -38,7 +41,10 @@ client = TestClient(app)
 
 
 def test_not_authenticated():
-    response = client.post("/chatbot/", json={"question": "What is the Loan to value ratio?"})
+    response = client.post(
+        "/chatbot/",
+        json={"question": "What is the Loan to value ratio?"},
+    )
     assert response.status_code == 401
 
 
@@ -60,10 +66,32 @@ def test_chatbot_response(get_token):
             "sources": ANY_LIST,
         }
     }
-    assert "financial metric" in response_data["answer"]["text"]
+    assert "The Loan to Value Ratio is the ratio" in response_data["answer"]["text"]
     assert response_data["answer"]["sources"][0] == {
         "isin": ANY_STR,
         "shortname": ANY_STR,
         "link": ANY_STR,
         "page": ANY_INT,
     }
+
+
+def test_chat_history(get_token):
+    """
+    This test runs against real OpenAI API and Weaviate instance.
+    APP_OPENAI_API_KEY and APP_WEAVIATE_API_KEY environment variables must be set.
+    """
+    response = client.post(
+        "/chatbot/",
+        headers={"Authorization": f"Bearer {get_token}"},
+        json={"question": "What is the Loan to value ratio?"},
+    )
+    assert response.status_code == 200
+    assert "The Loan to Value Ratio is the ratio" in response.json()["answer"]["text"]
+
+    response = client.post(
+        "/chatbot/",
+        headers={"Authorization": f"Bearer {get_token}"},
+        json={"question": "What value should it not exceed?"},
+    )
+    assert response.status_code == 200
+    assert "the maximum value that should not be exceeded is" in response.json()["answer"]["text"]

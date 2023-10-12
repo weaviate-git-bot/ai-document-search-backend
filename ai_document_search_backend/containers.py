@@ -3,9 +3,11 @@ import os
 from dependency_injector import containers, providers
 from dotenv import load_dotenv
 
+from .database_providers.in_memory_conversation_database import InMemoryConversationDatabase
 from .services.auth_service import AuthService
-from .services.summarization_service import SummarizationService
 from .services.chatbot_service import ChatbotService
+from .services.conversation_service import ConversationService
+from .services.summarization_service import SummarizationService
 from .utils.relative_path_from_file import relative_path_from_file
 
 CONFIG_PATH = relative_path_from_file(__file__, "../config.yml")
@@ -19,6 +21,7 @@ class Container(containers.DeclarativeContainer):
             ".routers.auth_router",
             ".routers.users_router",
             ".routers.chatbot_router",
+            ".routers.conversation_router",
         ]
     )
 
@@ -29,6 +32,16 @@ class Container(containers.DeclarativeContainer):
     )
 
     load_dotenv()
+
+    conversation_database = providers.Singleton(
+        InMemoryConversationDatabase,
+    )
+
+    conversation_service = providers.Factory(
+        ConversationService,
+        conversation_database=conversation_database,
+    )
+
     openai_api_key = os.getenv("APP_OPENAI_API_KEY")
     weaviate_api_key = os.getenv("APP_WEAVIATE_API_KEY")
 
