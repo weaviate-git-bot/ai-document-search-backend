@@ -1,7 +1,6 @@
 import pytest
 from anys import ANY_STR, ANY_LIST, ANY_INT
 from dependency_injector import providers
-from dependency_injector.wiring import inject
 from fastapi.testclient import TestClient
 
 from ai_document_search_backend.application import app
