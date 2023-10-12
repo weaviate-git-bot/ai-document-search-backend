@@ -48,10 +48,10 @@ async def answer_question(
     answer = chatbot_service.answer(question, chat_history)
 
     conversation_service.add_to_latest_conversation(
-        username, Message(originBot=False, text=question)
+        username, Message(origin_bot=False, text=question)
     )
     conversation_service.add_to_latest_conversation(
-        username, Message(originBot=True, text=answer.text, sources=answer.sources)
+        username, Message(origin_bot=True, text=answer.text, sources=answer.sources)
     )
 
     return ChatbotAnswer(text=answer.text, sources=answer.sources)
