@@ -22,7 +22,6 @@ class Container(containers.DeclarativeContainer):
             ".routers.users_router",
             ".routers.chatbot_router",
             ".routers.conversation_router",
-            ".database_providers.conversation_database",
         ]
     )
 
