@@ -86,7 +86,7 @@ def test_chat_history(get_token):
     assert response.status_code == 200
     assert "The Loan to Value" in response.json()["text"]
 
-    response2= client.post(
+    response2 = client.post(
         "/chatbot/",
         headers={"Authorization": f"Bearer {get_token}"},
         json={"question": "What value should it not exceed?"},
