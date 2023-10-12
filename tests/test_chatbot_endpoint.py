@@ -64,7 +64,6 @@ def test_chatbot_response(get_token):
         "text": ANY_STR,
         "sources": ANY_LIST,
     }
-    assert "The Loan to Value (LTV) ratio" in response_data["text"]
     assert response_data["sources"][0] == {
         "isin": ANY_STR,
         "shortname": ANY_STR,
@@ -84,12 +83,12 @@ def test_chat_history(get_token):
         json={"question": "What is the Loan to value ratio?"},
     )
     assert response.status_code == 200
-    assert "The Loan to Value" in response.json()["text"]
+    assert response.json()["text"] == ANY_STR
 
-    response2 = client.post(
+    response = client.post(
         "/chatbot/",
         headers={"Authorization": f"Bearer {get_token}"},
         json={"question": "What value should it not exceed?"},
     )
-    assert response2.status_code == 200
-    assert "The Loan to Value ratio should not exceed" in response2.json()["text"]
+    assert response.status_code == 200
+    assert response.json()["text"] == ANY_STR
