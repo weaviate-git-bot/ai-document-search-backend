@@ -12,7 +12,7 @@ class Source(BaseModel):
 
 
 class Message(BaseModel):
-    role: Union[Literal["user"], Literal["assistant"]]
+    originBot: bool
     text: str
     sources: Optional[list[Source]] = None
 

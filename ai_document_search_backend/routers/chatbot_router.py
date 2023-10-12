@@ -17,16 +17,13 @@ from ai_document_search_backend.utils.conversation_to_chat_history import (
     conversation_to_chat_history,
 )
 
+
 router = APIRouter(
     prefix="/chatbot",
     tags=["chatbot"],
 )
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
-
-
-class ChatbotResponse(BaseModel):
-    answer: ChatbotAnswer
 
 
 class ChatbotRequest(BaseModel):
@@ -41,7 +38,7 @@ async def answer_question(
     auth_service: AuthService = Depends(Provide[Container.auth_service]),
     chatbot_service: ChatbotService = Depends(Provide[Container.chatbot_service]),
     conversation_service: ConversationService = Depends(Provide[Container.conversation_service]),
-) -> ChatbotResponse:
+) -> ChatbotAnswer:
     username = auth_service.get_current_user(token).username
 
     conversation = conversation_service.get_latest_conversation(username)
@@ -50,9 +47,11 @@ async def answer_question(
     question = request.question
     answer = chatbot_service.answer(question, chat_history)
 
-    conversation_service.add_to_latest_conversation(username, Message(role="user", text=question))
     conversation_service.add_to_latest_conversation(
-        username, Message(role="assistant", text=answer.text, sources=answer.sources)
+        username, Message(originBot=False, text=question)
+    )
+    conversation_service.add_to_latest_conversation(
+        username, Message(originBot=True, text=answer.text, sources=answer.sources)
     )
 
-    return ChatbotResponse(answer=answer)
+    return ChatbotAnswer(text=answer.text, sources=answer.sources)
