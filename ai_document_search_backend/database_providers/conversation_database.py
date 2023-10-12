@@ -12,7 +12,7 @@ class Source(BaseModel):
 
 
 class Message(BaseModel):
-    origin_bot: bool
+    is_from_bot: bool
     text: str
     sources: Optional[list[Source]] = None
 
