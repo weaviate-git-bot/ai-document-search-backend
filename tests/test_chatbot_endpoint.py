@@ -1,6 +1,7 @@
 import pytest
 from anys import ANY_STR, ANY_LIST, ANY_INT
 from dependency_injector import providers
+from dependency_injector.wiring import inject
 from fastapi.testclient import TestClient
 
 from ai_document_search_backend.application import app
@@ -12,6 +13,9 @@ test_password = "test_password"
 
 @pytest.fixture(autouse=True)
 def run_before_and_after_tests():
+    # reset the conversation history before each test
+    app.container.conversation_database.reset()
+
     app.container.auth_service.override(
         providers.Factory(
             AuthService,
