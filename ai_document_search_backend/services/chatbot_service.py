@@ -8,12 +8,9 @@ from langchain.vectorstores import Weaviate
 from pydantic import BaseModel
 
 from ai_document_search_backend.database_providers.conversation_database import (
-    Conversation,
-    Message,
     Source,
 )
 from ai_document_search_backend.services.base_service import BaseService
-from ai_document_search_backend.services.conversation_service import ConversationService
 
 Exchange = tuple[str, str]
 
@@ -27,14 +24,12 @@ class ChatbotService(BaseService):
     def __init__(
         self,
         *,
-        conversation_service: ConversationService,
         weaviate_url: str,
         weaviate_api_key: str,
         openai_api_key: str,
         verbose: bool = False,
         temperature: float = 0,
     ):
-        self.conversation_service = conversation_service
         self.client = weaviate.Client(
             url=weaviate_url,
             auth_client_secret=weaviate.AuthApiKey(weaviate_api_key),
@@ -71,7 +66,7 @@ class ChatbotService(BaseService):
             embedding=self.embeddings,
         )
 
-    def answer(self, question: str, username: str) -> ChatbotAnswer:
+    def answer(self, question: str, chat_history: list[Exchange]) -> ChatbotAnswer:
         """Answer the question"""
 
         vectorstore = Weaviate(
@@ -90,9 +85,6 @@ class ChatbotService(BaseService):
             return_source_documents=True,
         )
 
-        conversation = self.conversation_service.get_latest_conversation(username)
-        chat_history = self.__conversation_to_chat_history(conversation)
-
         self.logger.info(f"Answering question: {question}")
         result = qa({"question": question, "chat_history": chat_history})
         answer_text = result["answer"]
@@ -107,29 +99,9 @@ class ChatbotService(BaseService):
             for source in result["source_documents"]
         ]
 
-        user_message = Message(role="user", text=question)
-        assistant_message = Message(role="assistant", text=answer_text, sources=sources)
-        self.conversation_service.add_to_latest_conversation(username, user_message)
-        self.conversation_service.add_to_latest_conversation(username, assistant_message)
-
         return ChatbotAnswer(text=answer_text, sources=sources)
 
     def delete_schema(self) -> None:
         """Delete the schema"""
 
         self.client.schema.delete_all()
-
-    @staticmethod
-    def __conversation_to_chat_history(conversation: Conversation) -> list[Exchange]:
-        """
-        Convert a conversation to a chat history.
-        Assumes that conversation messages are ordered by time and that the odd messages are from the user
-        and the even messages are from the assistant.
-
-        Exchange is a tuple of (question, answer)
-        """
-
-        return [
-            (conversation.messages[i].text, conversation.messages[i + 1].text)
-            for i in range(0, len(conversation.messages), 2)
-        ]

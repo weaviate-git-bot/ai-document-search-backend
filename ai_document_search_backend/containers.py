@@ -48,8 +48,6 @@ class Container(containers.DeclarativeContainer):
 
     chatbot_service = providers.Factory(
         ChatbotService,
-        # TODO move out of chatbot_service
-        conversation_service=conversation_service,
         weaviate_url=config.weaviate.url,
         weaviate_api_key=weaviate_api_key,
         openai_api_key=openai_api_key,
