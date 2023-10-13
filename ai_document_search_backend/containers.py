@@ -4,6 +4,7 @@ from dependency_injector import containers, providers
 from dotenv import load_dotenv
 
 from .database_providers.in_memory_conversation_database import InMemoryConversationDatabase
+from .database_providers.cosmos_database import CosmosDBConversationDatabase
 from .services.auth_service import AuthService
 from .services.chatbot_service import ChatbotService
 from .services.conversation_service import ConversationService
@@ -34,7 +35,10 @@ class Container(containers.DeclarativeContainer):
     load_dotenv()
 
     conversation_database = providers.Singleton(
-        InMemoryConversationDatabase,
+        # InMemoryConversationDatabase,
+        CosmosDBConversationDatabase,
+        endpoint = os.getenv("COSMOS_ENDPOINT"),
+        key = os.getenv("COSMOS_KEY")
     )
 
     conversation_service = providers.Factory(

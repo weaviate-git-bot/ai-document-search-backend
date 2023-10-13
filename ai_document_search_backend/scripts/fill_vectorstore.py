@@ -8,8 +8,8 @@ from ai_document_search_backend.utils.relative_path_from_file import (
     relative_path_from_file,
 )
 
-PDF_DIR_PATH = relative_path_from_file(__file__, "../../data/pdfs/")
-METADATA_PATH = relative_path_from_file(__file__, "../../data/clean_data.csv")
+PDF_DIR_PATH = relative_path_from_file(__file__, "../../data/pdfs_subset/")
+METADATA_PATH = relative_path_from_file(__file__, "../../data/clean_data_subset.csv")
 
 
 @inject
@@ -18,7 +18,7 @@ def main(chatbot_service: ChatbotService = Provide[Container.chatbot_service]) -
 
     chatbot_service.store(PDF_DIR_PATH, METADATA_PATH)
 
-    chatbot_service.answer("What is the Loan to value ratio?", "user1")
+    # chatbot_service.answer("What is the Loan to value ratio?", "user1")
 
 
 if __name__ == "__main__":
