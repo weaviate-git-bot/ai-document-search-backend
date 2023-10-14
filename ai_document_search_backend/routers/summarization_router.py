@@ -24,7 +24,7 @@ class SummarizationResponse(BaseModel):
     summary: str
 
 
-@router.get("/")
+@router.get("")
 @inject
 async def summarization(
     text: str,

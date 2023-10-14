@@ -19,7 +19,7 @@ router = APIRouter(
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
-@router.get("/")
+@router.get("")
 @inject
 async def get_latest_conversation(
     token: Annotated[str, Depends(oauth2_scheme)],
@@ -30,7 +30,7 @@ async def get_latest_conversation(
     return conversation_service.get_latest_conversation(user.username)
 
 
-@router.post("/")
+@router.post("")
 @inject
 async def create_new_conversation(
     token: Annotated[str, Depends(oauth2_scheme)],

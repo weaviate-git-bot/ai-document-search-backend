@@ -30,7 +30,7 @@ class ChatbotRequest(BaseModel):
     question: str
 
 
-@router.post("/")
+@router.post("")
 @inject
 async def answer_question(
     request: ChatbotRequest,
