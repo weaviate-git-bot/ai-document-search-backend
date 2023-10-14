@@ -1,5 +1,5 @@
 import uuid
-import json
+from yaml import load, dump
 from typing import Optional
 
 from azure.cosmos import CosmosClient, PartitionKey
@@ -25,7 +25,10 @@ class CosmosDBConversationDatabase(ConversationDatabase):
         
         
         latest_conversation = self.conversations.query_items(query=QUERY, parameters=params, enable_cross_partition_query=False).next()
+        print("Convo\n")
         print(latest_conversation)
+        print("\n\n\nDecode")
+        # print(jsonpickle.decode(latest_conversation))
         
         return latest_conversation
         
@@ -45,10 +48,29 @@ class CosmosDBConversationDatabase(ConversationDatabase):
         
         
         latest_conversation = self.conversations.query_items(query=QUERY, parameters=params, enable_cross_partition_query=False).next()
+
+        message_dict = {
+            'role': message.role,
+            'text': message.text,
+        }
+
+        if message.sources:
+
+            sources_list = []
+
+            for source in message.sources:
+                source_dict = {
+                    'isin': source.isin,
+                    'shortname': source.shortname,
+                    'link': source.link,
+                    'page': source.page
+                }
+                sources_list.append(source_dict)
+
+            message_dict['sources'] = sources_list
+
         
-        print('convo')
-        print(latest_conversation)
-        latest_conversation['messages'].append(message.toJson())
+        latest_conversation['messages'].append(message_dict)
         
         new_conversation = {
             "id": latest_conversation['id'],

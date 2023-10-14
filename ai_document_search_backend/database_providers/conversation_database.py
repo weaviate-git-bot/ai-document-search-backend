@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from typing import Union, Literal, Optional
-import json
 
 from pydantic import BaseModel
 
@@ -12,18 +11,18 @@ class Source(BaseModel):
     page: int
 
 
+
 class Message(BaseModel):
     role: Union[Literal["user"], Literal["assistant"]]
     text: str
     sources: Optional[list[Source]] = None
     
-    def toJson(self):
-        return json.dumps(self, default=lambda o: o.__dict__)
 
 
 class Conversation(BaseModel):
     created_at: str
     messages: list[Message]
+
 
 
 class ConversationDatabase(ABC):
