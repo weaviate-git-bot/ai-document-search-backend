@@ -38,7 +38,8 @@ class Container(containers.DeclarativeContainer):
         # InMemoryConversationDatabase,
         CosmosDBConversationDatabase,
         endpoint = os.getenv("COSMOS_ENDPOINT"),
-        key = os.getenv("COSMOS_KEY")
+        key = os.getenv("COSMOS_KEY"),
+        db_name="NordicTrustee"
     )
 
     conversation_service = providers.Factory(

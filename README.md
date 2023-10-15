@@ -29,6 +29,8 @@ APP_WEAVIATE_API_KEY=api_key_for_weaviate_url_specified_in_config
 AUTH_SECRET_KEY=any_secret_key
 AUTH_USERNAME=any_user
 AUTH_PASSWORD=any_password
+COSMOS_ENDPOINT='your_cosmosdb_uri'
+COSMOS_KEY='your_cosmosdb_primary_key'
 ```
 
 ### Without Docker

@@ -12,9 +12,9 @@ from ai_document_search_backend.database_providers.conversation_database import 
 )
 
 class CosmosDBConversationDatabase(ConversationDatabase):
-    def __init__(self, endpoint: str, key:str):
+    def __init__(self, endpoint: str, key:str, db_name:str):
         self.client = CosmosClient(url=endpoint, credential=key)
-        self.database = self.client.get_database_client("NordicTrustee")
+        self.database = self.client.get_database_client(db_name)
         self.conversations = self.database.get_container_client("Conversations")
 
         super().__init__()
