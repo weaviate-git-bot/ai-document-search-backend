@@ -50,7 +50,6 @@ async def answer_question(
     question = request.question
     answer = chatbot_service.answer(question, chat_history)
 
-
     conversation_service.add_to_latest_conversation(username, Message(role="user", text=question))
     conversation_service.add_to_latest_conversation(
         username, Message(role="assistant", text=answer.text, sources=answer.sources)

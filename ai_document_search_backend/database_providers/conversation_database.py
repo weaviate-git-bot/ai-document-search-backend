@@ -11,18 +11,15 @@ class Source(BaseModel):
     page: int
 
 
-
 class Message(BaseModel):
     role: Union[Literal["user"], Literal["assistant"]]
     text: str
     sources: Optional[list[Source]] = None
-    
 
 
 class Conversation(BaseModel):
     created_at: str
     messages: list[Message]
-
 
 
 class ConversationDatabase(ABC):
@@ -36,4 +33,8 @@ class ConversationDatabase(ABC):
 
     @abstractmethod
     def add_to_latest_conversation(self, username: str, message: Message) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def clear_conversations(self, username: str) -> None:
         raise NotImplementedError
