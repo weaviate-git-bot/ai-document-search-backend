@@ -1,10 +1,8 @@
 from datetime import datetime
 import uuid
-from fastapi.exceptions import ResponseValidationError
-from yaml import load, dump
 from typing import Optional
 
-from azure.cosmos import CosmosClient, PartitionKey
+from azure.cosmos import CosmosClient
 
 
 from ai_document_search_backend.database_providers.conversation_database import (
@@ -23,19 +21,20 @@ class CosmosDBConversationDatabase(ConversationDatabase):
         super().__init__()
 
     def get_latest_conversation(self, username: str) -> Optional[Conversation]:
-        QUERY = "SELECT c.created_at, c.messages FROM conversation c WHERE c.user = @username ORDER BY c.created_at DESC"
+        query = "SELECT c.created_at, c.messages FROM conversation c WHERE c.user = @username ORDER BY c.created_at DESC"
         params = [dict(name="@username", value=username)]
 
+        # If there is no conversation, create one
         try:
             latest_conversation = self.conversations.query_items(
-                query=QUERY, parameters=params, enable_cross_partition_query=False
+                query=query, parameters=params, enable_cross_partition_query=False
             ).next()
             return latest_conversation
-        except:
+        except StopIteration:
             conversation = Conversation(created_at=self.__get_current_time(), messages=[])
             self.add_conversation(username, conversation)
             latest_conversation = self.conversations.query_items(
-                query=QUERY, parameters=params, enable_cross_partition_query=False
+                query=query, parameters=params, enable_cross_partition_query=False
             ).next()
             return latest_conversation
 
@@ -97,11 +96,7 @@ class CosmosDBConversationDatabase(ConversationDatabase):
         )
         for conversation in conversations:
             conversation_id = conversation["id"]
-            print("\n\n\n\n\n\n")
-            print(conversation_id)
-            print(username)
-            response = self.conversations.delete_item(item=conversation_id, partition_key=username)
-            print(response)
+            self.conversations.delete_item(item=conversation_id, partition_key=username)
 
     @staticmethod
     def __get_current_time() -> str:
