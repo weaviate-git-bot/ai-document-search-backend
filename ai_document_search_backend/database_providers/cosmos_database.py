@@ -48,11 +48,11 @@ class CosmosDBConversationDatabase(ConversationDatabase):
         self.conversations.create_item(new_conversation)
 
     def add_to_latest_conversation(self, username: str, message: Message) -> None:
-        QUERY = "SELECT * FROM conversation c WHERE c.user = @username ORDER BY c.created_at DESC"
+        query = "SELECT * FROM conversation c WHERE c.user = @username ORDER BY c.created_at DESC"
         params = [dict(name="@username", value=username)]
 
         latest_conversation = self.conversations.query_items(
-            query=QUERY, parameters=params, enable_cross_partition_query=False
+            query=query, parameters=params, enable_cross_partition_query=False
         ).next()
 
         message_dict = {
@@ -89,10 +89,10 @@ class CosmosDBConversationDatabase(ConversationDatabase):
         # Can only be used if we enable the delete items by partition key feature, which requires a paid account
         # self.conversations.delete_all_items_by_partition_key(username)
 
-        QUERY = "SELECT * FROM conversation c WHERE c.user = @username ORDER BY c.created_at DESC"
+        query = "SELECT * FROM conversation c WHERE c.user = @username ORDER BY c.created_at DESC"
         params = [dict(name="@username", value=username)]
         conversations = self.conversations.query_items(
-            query=QUERY, parameters=params, enable_cross_partition_query=False
+            query=query, parameters=params, enable_cross_partition_query=False
         )
         for conversation in conversations:
             conversation_id = conversation["id"]

@@ -3,7 +3,6 @@ import os
 from dependency_injector import containers, providers
 from dotenv import load_dotenv
 
-from .database_providers.in_memory_conversation_database import InMemoryConversationDatabase
 from .database_providers.cosmos_database import CosmosDBConversationDatabase
 from .services.auth_service import AuthService
 from .services.chatbot_service import ChatbotService
