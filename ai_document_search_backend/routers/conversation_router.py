@@ -41,7 +41,7 @@ async def create_new_conversation(
     return conversation_service.create_new_conversation(user.username)
 
 
-@router.delete("/")
+@router.delete("")
 @inject
 async def clear_conversations(
     token: Annotated[str, Depends(oauth2_scheme)],

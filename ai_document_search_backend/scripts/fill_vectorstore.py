@@ -8,8 +8,8 @@ from ai_document_search_backend.utils.relative_path_from_file import (
     relative_path_from_file,
 )
 
-PDF_DIR_PATH = relative_path_from_file(__file__, "../../data/pdfs_subset/")
-METADATA_PATH = relative_path_from_file(__file__, "../../data/clean_data_subset.csv")
+PDF_DIR_PATH = relative_path_from_file(__file__, "../../data/pdfs/")
+METADATA_PATH = relative_path_from_file(__file__, "../../data/clean_data.csv")
 
 
 @inject

@@ -30,7 +30,7 @@ class ConversationService(BaseService):
 
     def clear_conversations(self, username: str) -> str:
         self.conversation_database.clear_conversations(username)
-        return "Conversations deleted"
+        return f"Conversations deleted for user {username}"
 
     @staticmethod
     def __get_current_time() -> str:
