@@ -24,16 +24,12 @@ class ChatbotService(BaseService):
     def __init__(
         self,
         *,
-        weaviate_url: str,
-        weaviate_api_key: str,
+        weaviate_client: weaviate.Client,
         openai_api_key: str,
         verbose: bool = False,
         temperature: float = 0,
     ):
-        self.client = weaviate.Client(
-            url=weaviate_url,
-            auth_client_secret=weaviate.AuthApiKey(weaviate_api_key),
-        )
+        self.client = weaviate_client
         self.embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
         self.openai_api_key = openai_api_key
         self.verbose = verbose

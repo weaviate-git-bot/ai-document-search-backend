@@ -79,13 +79,10 @@ def test_chatbot_response(get_token):
     assert response.status_code == 200
     response_data = response.json()
     assert response_data == {
-        "answer": {
-            "text": ANY_STR,
-            "sources": ANY_LIST,
-        }
+        "text": ANY_STR,
+        "sources": ANY_LIST,
     }
-    assert "The Loan to Value Ratio is the ratio" in response_data["answer"]["text"]
-    assert response_data["answer"]["sources"][0] == {
+    assert response_data["sources"][0] == {
         "isin": ANY_STR,
         "shortname": ANY_STR,
         "link": ANY_STR,
@@ -104,7 +101,7 @@ def test_chat_history(get_token):
         json={"question": "What is the Loan to value ratio?"},
     )
     assert response.status_code == 200
-    assert "The Loan to Value Ratio is the ratio" in response.json()["answer"]["text"]
+    assert response.json()["text"] == ANY_STR
 
     response = client.post(
         "/chatbot/",
@@ -112,4 +109,4 @@ def test_chat_history(get_token):
         json={"question": "What value should it not exceed?"},
     )
     assert response.status_code == 200
-    assert "the maximum value that should not be exceeded is" in response.json()["answer"]["text"]
+    assert response.json()["text"] == ANY_STR

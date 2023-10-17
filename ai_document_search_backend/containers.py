@@ -1,5 +1,6 @@
 import os
 
+import weaviate
 from dependency_injector import containers, providers
 from dotenv import load_dotenv
 
@@ -49,10 +50,15 @@ class Container(containers.DeclarativeContainer):
     openai_api_key = os.getenv("APP_OPENAI_API_KEY")
     weaviate_api_key = os.getenv("APP_WEAVIATE_API_KEY")
 
+    weaviate_client = providers.Factory(
+        weaviate.Client,
+        url=config.weaviate.url,
+        auth_client_secret=weaviate.AuthApiKey(weaviate_api_key),
+    )
+
     chatbot_service = providers.Factory(
         ChatbotService,
-        weaviate_url=config.weaviate.url,
-        weaviate_api_key=weaviate_api_key,
+        weaviate_client=weaviate_client,
         openai_api_key=openai_api_key,
         verbose=config.chatbot.verbose,
         temperature=config.chatbot.temperature,
