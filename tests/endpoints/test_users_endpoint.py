@@ -1,28 +1,16 @@
 import pytest
-from dependency_injector import providers
 from fastapi.testclient import TestClient
 
 from ai_document_search_backend.application import app
-from ai_document_search_backend.services.auth_service import AuthService
 
 test_username = "test_user"
 test_password = "test_password"
 
+app.container.config.auth.secret_key.from_value("test_secret_key")
+app.container.config.auth.username.from_value(test_username)
+app.container.config.auth.password.from_value(test_password)
 
-@pytest.fixture(autouse=True)
-def run_before_and_after_tests():
-    app.container.auth_service.override(
-        providers.Factory(
-            AuthService,
-            algorithm="HS256",
-            access_token_expire_minutes=30,
-            secret_key="test_secret_key",
-            username=test_username,
-            password=test_password,
-        )
-    )
-    yield
-    app.container.auth_service.reset_override()
+client = TestClient(app)
 
 
 @pytest.fixture
@@ -31,9 +19,6 @@ def get_token():
         "/auth/token", data={"username": test_username, "password": test_password}
     )
     return response.json()["access_token"]
-
-
-client = TestClient(app)
 
 
 def test_not_authenticated():

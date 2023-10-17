@@ -1,52 +1,51 @@
-import os
-from dotenv import load_dotenv
 import pytest
-from dependency_injector import providers
+from anys import ANY_STR
+from fastapi.encoders import jsonable_encoder
 from fastapi.testclient import TestClient
 
 from ai_document_search_backend.application import app
-from ai_document_search_backend.database_providers.cosmos_conversation_database import (
-    CosmosConversationDatabase,
+from ai_document_search_backend.database_providers.conversation_database import (
+    Message,
+    Source,
+    Conversation,
 )
-from ai_document_search_backend.services.auth_service import AuthService
 
 test_username = "test_user"
 test_password = "test_password"
 
+user_message = Message(is_from_bot=False, text="Hello")
+bot_message = Message(
+    is_from_bot=True,
+    text="Hi",
+    sources=[
+        Source(
+            isin="NO1111111111",
+            shortname="Bond 2021",
+            link="https://www.example.com/bond1.pdf",
+            page=1,
+        ),
+        Source(
+            isin="NO2222222222",
+            shortname="Bond 2022",
+            link="https://www.example.com/bond2.pdf",
+            page=5,
+        ),
+    ],
+)
+
+app.container.config.auth.secret_key.from_value("test_secret_key")
+app.container.config.auth.username.from_value(test_username)
+app.container.config.auth.password.from_value(test_password)
+
+app.container.config.cosmos.db_name.from_value("TestDB")
+
+client = TestClient(app)
+
 
 @pytest.fixture(autouse=True)
 def run_before_and_after_tests():
-    load_dotenv()
-
-    app.container.auth_service.override(
-        providers.Factory(
-            AuthService,
-            algorithm="HS256",
-            access_token_expire_minutes=30,
-            secret_key="test_secret_key",
-            username=test_username,
-            password=test_password,
-        )
-    )
-    app.container.conversation_database.override(
-        providers.Singleton(
-            CosmosConversationDatabase,
-            endpoint=os.getenv("COSMOS_ENDPOINT"),
-            key=os.getenv("COSMOS_KEY"),
-            db_name="Test",
-        )
-    )
-
-    response = client.post(
-        "/auth/token", data={"username": test_username, "password": test_password}
-    )
-    client.delete(
-        "/conversation", headers={"Authorization": f"Bearer {response.json()['access_token']}"}
-    )
-
+    app.container.conversation_database().clear_conversations(test_username)
     yield
-    app.container.auth_service.reset_override()
-    app.container.conversation_database.reset_override()
 
 
 @pytest.fixture
@@ -57,57 +56,53 @@ def get_token():
     return response.json()["access_token"]
 
 
-client = TestClient(app)
-
-
 def test_not_authenticated():
+    get_response = client.get("/conversation")
     post_response = client.post("/conversation")
-    get_response = client.get("/conversation/")
+    delete_response = client.delete("/conversation")
 
     assert get_response.status_code == 401
     assert post_response.status_code == 401
+    assert delete_response.status_code == 401
 
 
-def test_create_conversation(get_token):
-    post_response = client.post("/conversation", headers={"Authorization": f"Bearer {get_token}"})
-    print(f"Bearer {get_token}")
-    assert post_response.status_code == 200
+def test_get_latest_conversation_creates_new_conversation_when_no_conversation_exists(get_token):
+    response = client.get("/conversation", headers={"Authorization": f"Bearer {get_token}"})
+    assert response.status_code == 200
+    assert response.json() == {"created_at": ANY_STR, "messages": []}
 
 
-def test_add_to_conversation(get_token):
-    post_response = client.post("/conversation", headers={"Authorization": f"Bearer {get_token}"})
-    assert post_response.status_code == 200
-
-    chat_response = client.post(
-        "/chatbot",
-        headers={"Authorization": f"Bearer {get_token}"},
-        json={"question": "What is the Loan to value ratio?"},
+def test_gets_latest_conversation(get_token):
+    conversation_older = Conversation(created_at="2021-01-01T00:00:00", messages=[])
+    conversation_newer = Conversation(
+        created_at="2021-01-02T00:00:00", messages=[user_message, bot_message]
     )
-    assert chat_response.status_code == 200
+    app.container.conversation_database().add_conversation(test_username, conversation_newer)
+    app.container.conversation_database().add_conversation(test_username, conversation_older)
 
-    get_response = client.get("/conversation", headers={"Authorization": f"Bearer {get_token}"})
-    assert get_response.status_code == 200
-    assert len(get_response.json()["messages"]) == 2
+    response = client.get("/conversation", headers={"Authorization": f"Bearer {get_token}"})
+    assert response.status_code == 200
+    assert response.json() == jsonable_encoder(conversation_newer)
 
 
-def test_create_new_conversation(get_token):
-    post_response = client.post("/conversation", headers={"Authorization": f"Bearer {get_token}"})
-    assert post_response.status_code == 200
+def test_creates_new_empty_conversation_when_none_existed(get_token):
+    response = client.post("/conversation", headers={"Authorization": f"Bearer {get_token}"})
+    assert response.status_code == 200
+    assert response.json() == {"created_at": ANY_STR, "messages": []}
 
-    chat_response = client.post(
-        "/chatbot",
-        headers={"Authorization": f"Bearer {get_token}"},
-        json={"question": "What is the Loan to value ratio?"},
+
+def test_creates_new_empty_conversation_when_another_conversation_existed(get_token):
+    conversation = Conversation(
+        created_at="2021-01-02T00:00:00", messages=[user_message, bot_message]
     )
-    assert chat_response.status_code == 200
+    app.container.conversation_database().add_conversation(test_username, conversation)
 
-    get_response = client.get("/conversation", headers={"Authorization": f"Bearer {get_token}"})
-    assert get_response.status_code == 200
-    assert len(get_response.json()["messages"]) == 2
+    response = client.post("/conversation", headers={"Authorization": f"Bearer {get_token}"})
+    assert response.status_code == 200
+    assert response.json() == {"created_at": ANY_STR, "messages": []}
 
-    post_response = client.post("/conversation", headers={"Authorization": f"Bearer {get_token}"})
-    assert post_response.status_code == 200
 
-    get_response = client.get("/conversation", headers={"Authorization": f"Bearer {get_token}"})
-    assert get_response.status_code == 200
-    assert len(get_response.json()["messages"]) == 0
+def test_clears_conversations_of_user(get_token):
+    response = client.delete("/conversation", headers={"Authorization": f"Bearer {get_token}"})
+    assert response.status_code == 200
+    assert response.json() == "Conversations deleted for user test_user"

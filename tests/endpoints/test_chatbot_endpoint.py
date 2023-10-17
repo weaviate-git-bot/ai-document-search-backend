@@ -1,49 +1,25 @@
-import os
-from dotenv import load_dotenv
 import pytest
 from anys import ANY_STR, ANY_LIST, ANY_INT
-from dependency_injector import providers
 from fastapi.testclient import TestClient
 
 from ai_document_search_backend.application import app
-from ai_document_search_backend.database_providers.cosmos_conversation_database import (
-    CosmosConversationDatabase,
-)
-from ai_document_search_backend.services.auth_service import AuthService
 
 test_username = "test_user"
 test_password = "test_password"
 
+app.container.config.auth.secret_key.from_value("test_secret_key")
+app.container.config.auth.username.from_value(test_username)
+app.container.config.auth.password.from_value(test_password)
+
+app.container.config.cosmos.db_name.from_value("TestDB")
+
+client = TestClient(app)
+
 
 @pytest.fixture(autouse=True)
 def run_before_and_after_tests():
-    # reset the conversation history before each test
-    app.container.conversation_database.reset()
-
-    load_dotenv()
-
-    app.container.auth_service.override(
-        providers.Factory(
-            AuthService,
-            algorithm="HS256",
-            access_token_expire_minutes=30,
-            secret_key="test_secret_key",
-            username=test_username,
-            password=test_password,
-        )
-    )
-    app.container.conversation_database.override(
-        providers.Singleton(
-            # InMemoryConversationDatabase,
-            CosmosConversationDatabase,
-            endpoint=os.getenv("COSMOS_ENDPOINT"),
-            key=os.getenv("COSMOS_KEY"),
-            db_name="Test",
-        )
-    )
+    app.container.conversation_database().clear_conversations(test_username)
     yield
-    app.container.auth_service.reset_override()
-    app.container.conversation_database.reset_override()
 
 
 @pytest.fixture
@@ -52,9 +28,6 @@ def get_token():
         "/auth/token", data={"username": test_username, "password": test_password}
     )
     return response.json()["access_token"]
-
-
-client = TestClient(app)
 
 
 def test_not_authenticated():
@@ -75,7 +48,6 @@ def test_chatbot_response(get_token):
         headers={"Authorization": f"Bearer {get_token}"},
         json={"question": "What is the Loan to value ratio?"},
     )
-
     assert response.status_code == 200
     response_data = response.json()
     assert response_data == {
@@ -102,6 +74,10 @@ def test_chat_history(get_token):
     )
     assert response.status_code == 200
     assert response.json()["text"] == ANY_STR
+
+    response = client.get("/conversation", headers={"Authorization": f"Bearer {get_token}"})
+    assert response.status_code == 200
+    assert len(response.json()["messages"]) == 2
 
     response = client.post(
         "/chatbot/",

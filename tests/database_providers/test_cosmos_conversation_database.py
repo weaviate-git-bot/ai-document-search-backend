@@ -1,4 +1,3 @@
-
 import pytest
 
 from ai_document_search_backend.containers import Container
@@ -30,8 +29,7 @@ bot_message = Message(
 )
 
 container = Container()
-container.config.cosmos.db_name.from_value("test_cosmos_conversation_database")
-container.config.cosmos.offer_throughput.from_value(10)
+container.config.cosmos.db_name.from_value("TestDB")
 db = container.conversation_database()
 
 

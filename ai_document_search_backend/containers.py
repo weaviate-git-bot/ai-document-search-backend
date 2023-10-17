@@ -66,15 +66,15 @@ class Container(containers.DeclarativeContainer):
         temperature=config.chatbot.temperature,
     )
 
-    secret_key = os.getenv("AUTH_SECRET_KEY")
-    username = os.getenv("AUTH_USERNAME")
-    password = os.getenv("AUTH_PASSWORD")
+    config.auth.secret_key.from_env("AUTH_SECRET_KEY")
+    config.auth.username.from_env("AUTH_USERNAME")
+    config.auth.password.from_env("AUTH_PASSWORD")
 
     auth_service = providers.Factory(
         AuthService,
         algorithm=config.auth.algorithm,
         access_token_expire_minutes=config.auth.access_token_expire_minutes,
-        secret_key=secret_key,
-        username=username,
-        password=password,
+        secret_key=config.auth.secret_key,
+        username=config.auth.username,
+        password=config.auth.password,
     )
