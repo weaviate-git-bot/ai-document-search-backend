@@ -56,7 +56,7 @@ class CosmosDBConversationDatabase(ConversationDatabase):
         ).next()
 
         message_dict = {
-            "role": message.role,
+            "is_from_bot": message.is_from_bot,
             "text": message.text,
         }
 
