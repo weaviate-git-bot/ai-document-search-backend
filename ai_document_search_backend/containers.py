@@ -4,7 +4,7 @@ import weaviate
 from dependency_injector import containers, providers
 from dotenv import load_dotenv
 
-from .database_providers.in_memory_conversation_database import InMemoryConversationDatabase
+from .database_providers.cosmos_conversation_database import CosmosConversationDatabase
 from .services.auth_service import AuthService
 from .services.chatbot_service import ChatbotService
 from .services.conversation_service import ConversationService
@@ -34,8 +34,14 @@ class Container(containers.DeclarativeContainer):
 
     load_dotenv()
 
+    cosmos_key = os.getenv("COSMOS_KEY")
+
     conversation_database = providers.Singleton(
-        InMemoryConversationDatabase,
+        CosmosConversationDatabase,
+        url=config.cosmos.url,
+        key=cosmos_key,
+        db_name=config.cosmos.db_name,
+        offer_throughput=config.cosmos.offer_throughput,
     )
 
     conversation_service = providers.Factory(
@@ -60,15 +66,15 @@ class Container(containers.DeclarativeContainer):
         temperature=config.chatbot.temperature,
     )
 
-    secret_key = os.getenv("AUTH_SECRET_KEY")
-    username = os.getenv("AUTH_USERNAME")
-    password = os.getenv("AUTH_PASSWORD")
+    config.auth.secret_key.from_env("AUTH_SECRET_KEY")
+    config.auth.username.from_env("AUTH_USERNAME")
+    config.auth.password.from_env("AUTH_PASSWORD")
 
     auth_service = providers.Factory(
         AuthService,
         algorithm=config.auth.algorithm,
         access_token_expire_minutes=config.auth.access_token_expire_minutes,
-        secret_key=secret_key,
-        username=username,
-        password=password,
+        secret_key=config.auth.secret_key,
+        username=config.auth.username,
+        password=config.auth.password,
     )

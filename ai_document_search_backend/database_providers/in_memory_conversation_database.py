@@ -14,7 +14,10 @@ class InMemoryConversationDatabase(ConversationDatabase):
         super().__init__()
 
     def get_latest_conversation(self, username: str) -> Optional[Conversation]:
-        return self.db.get(username, [None])[-1]
+        all_conversations = self.db.get(username, [])
+        if not all_conversations:
+            return None
+        return sorted(all_conversations, key=lambda x: x.created_at)[-1]
 
     def add_conversation(self, username: str, conversation: Conversation) -> None:
         self.db.setdefault(username, []).append(conversation)
@@ -24,3 +27,6 @@ class InMemoryConversationDatabase(ConversationDatabase):
         if latest_conversation is None:
             raise ValueError(f"No conversation found for user {username}")
         latest_conversation.messages.append(message)
+
+    def clear_conversations(self, username: str) -> None:
+        self.db[username] = []

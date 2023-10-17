@@ -39,3 +39,14 @@ async def create_new_conversation(
 ) -> Conversation:
     user = auth_service.get_current_user(token)
     return conversation_service.create_new_conversation(user.username)
+
+
+@router.delete("")
+@inject
+async def clear_conversations(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    auth_service: AuthService = Depends(Provide[Container.auth_service]),
+    conversation_service: ConversationService = Depends(Provide[Container.conversation_service]),
+) -> str:
+    user = auth_service.get_current_user(token)
+    return conversation_service.clear_conversations(user.username)

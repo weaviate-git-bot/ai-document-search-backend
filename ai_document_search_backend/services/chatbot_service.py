@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 import weaviate
 from langchain.chains import ConversationalRetrievalChain
@@ -48,7 +50,7 @@ class ChatbotService(BaseService):
         data_pypdf = loader.load()
         df = pd.read_csv(metadata_path)
         for doc in data_pypdf:
-            filename = doc.metadata["source"].split("/")[-1]
+            filename = Path(doc.metadata["source"]).name
             metadata_row = df[df["filename"] == filename]
             for prop in self.custom_metadata_properties:
                 doc.metadata[prop] = metadata_row[prop].values[0]

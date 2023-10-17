@@ -34,3 +34,7 @@ class ConversationDatabase(ABC):
     @abstractmethod
     def add_to_latest_conversation(self, username: str, message: Message) -> None:
         raise NotImplementedError
+
+    @abstractmethod
+    def clear_conversations(self, username: str) -> None:
+        raise NotImplementedError

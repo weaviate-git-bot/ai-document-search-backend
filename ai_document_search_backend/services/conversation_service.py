@@ -28,6 +28,10 @@ class ConversationService(BaseService):
     def add_to_latest_conversation(self, username: str, message: Message) -> None:
         self.conversation_database.add_to_latest_conversation(username, message)
 
+    def clear_conversations(self, username: str) -> str:
+        self.conversation_database.clear_conversations(username)
+        return f"Conversations deleted for user {username}"
+
     @staticmethod
     def __get_current_time() -> str:
         return datetime.now().isoformat()

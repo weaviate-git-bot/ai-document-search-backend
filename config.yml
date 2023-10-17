@@ -5,6 +5,10 @@ auth:
   access_token_expire_minutes: 0 # 0 = never
 weaviate:
   url: "https://ai-document-search-backend-dev-95avppln.weaviate.network"
+cosmos:
+  url: "https://cosmos-docsearch-dev.documents.azure.com:443/"
+  db_name: "NordicTrustee"
+  offer_throughput: 400 # minimum 400
 chatbot:
   verbose: false
   temperature: 0 # randomness, 0 = deterministic

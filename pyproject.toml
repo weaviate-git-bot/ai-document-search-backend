@@ -27,6 +27,7 @@ weaviate-client = "^3.24.1"
 unstructured = {extras = ["pdf"], version = "^0.10.15"}
 pymupdf = "^1.23.3"
 chromadb = "^0.4.13"
+azure-cosmos = "^4.5.1"
 
 
 [tool.poetry.group.dev.dependencies]
