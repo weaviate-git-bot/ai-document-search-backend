@@ -6,8 +6,8 @@ from dependency_injector import providers
 from fastapi.testclient import TestClient
 
 from ai_document_search_backend.application import app
-from ai_document_search_backend.database_providers.cosmos_database import (
-    CosmosDBConversationDatabase,
+from ai_document_search_backend.database_providers.cosmos_conversation_database import (
+    CosmosConversationDatabase,
 )
 from ai_document_search_backend.services.auth_service import AuthService
 
@@ -35,7 +35,7 @@ def run_before_and_after_tests():
     app.container.conversation_database.override(
         providers.Singleton(
             # InMemoryConversationDatabase,
-            CosmosDBConversationDatabase,
+            CosmosConversationDatabase,
             endpoint=os.getenv("COSMOS_ENDPOINT"),
             key=os.getenv("COSMOS_KEY"),
             db_name="Test",

@@ -26,11 +26,10 @@ Start by creating an `.env` file in the project root with the following content:
 ```dotenv
 APP_OPENAI_API_KEY=your_openai_api_key
 APP_WEAVIATE_API_KEY=api_key_for_weaviate_url_specified_in_config
+COSMOS_KEY='key_for_cosmos_url_specified_in_config'
 AUTH_SECRET_KEY=any_secret_key
 AUTH_USERNAME=any_user
 AUTH_PASSWORD=any_password
-COSMOS_ENDPOINT='your_cosmosdb_uri'
-COSMOS_KEY='your_cosmosdb_primary_key'
 ```
 
 ### Without Docker
