@@ -1,5 +1,3 @@
-import os
-
 import weaviate
 from dependency_injector import containers, providers
 from dotenv import load_dotenv
@@ -34,12 +32,12 @@ class Container(containers.DeclarativeContainer):
 
     load_dotenv()
 
-    cosmos_key = os.getenv("COSMOS_KEY")
+    config.cosmos.key.from_env("COSMOS_KEY")
 
     conversation_database = providers.Singleton(
         CosmosConversationDatabase,
         url=config.cosmos.url,
-        key=cosmos_key,
+        key=config.cosmos.key,
         db_name=config.cosmos.db_name,
         offer_throughput=config.cosmos.offer_throughput,
     )
@@ -49,19 +47,24 @@ class Container(containers.DeclarativeContainer):
         conversation_database=conversation_database,
     )
 
-    openai_api_key = os.getenv("APP_OPENAI_API_KEY")
-    weaviate_api_key = os.getenv("APP_WEAVIATE_API_KEY")
+    config.openai.api_key.from_env("APP_OPENAI_API_KEY")
+    config.weaviate.api_key.from_env("APP_WEAVIATE_API_KEY")
+
+    auth_client_secret = providers.Factory(
+        weaviate.AuthApiKey,
+        api_key=config.weaviate.api_key,
+    )
 
     weaviate_client = providers.Factory(
         weaviate.Client,
         url=config.weaviate.url,
-        auth_client_secret=weaviate.AuthApiKey(weaviate_api_key),
+        auth_client_secret=auth_client_secret,
     )
 
     chatbot_service = providers.Factory(
         ChatbotService,
         weaviate_client=weaviate_client,
-        openai_api_key=openai_api_key,
+        openai_api_key=config.openai.api_key,
         verbose=config.chatbot.verbose,
         temperature=config.chatbot.temperature,
     )
