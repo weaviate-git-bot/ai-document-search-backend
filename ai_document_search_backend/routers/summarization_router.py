@@ -26,7 +26,7 @@ class SummarizationResponse(BaseModel):
 
 @router.get("")
 @inject
-async def summarization(
+def summarization(
     text: str,
     token: Annotated[str, Depends(oauth2_scheme)],
     auth_service: AuthService = Depends(Provide[Container.auth_service]),

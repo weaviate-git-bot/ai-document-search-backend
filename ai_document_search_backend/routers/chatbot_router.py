@@ -32,7 +32,7 @@ class ChatbotRequest(BaseModel):
 
 @router.post("")
 @inject
-async def answer_question(
+def answer_question(
     request: ChatbotRequest,
     token: Annotated[str, Depends(oauth2_scheme)],
     auth_service: AuthService = Depends(Provide[Container.auth_service]),
