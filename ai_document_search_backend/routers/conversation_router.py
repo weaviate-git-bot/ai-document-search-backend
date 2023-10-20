@@ -21,7 +21,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 @router.get("")
 @inject
-async def get_latest_conversation(
+def get_latest_conversation(
     token: Annotated[str, Depends(oauth2_scheme)],
     auth_service: AuthService = Depends(Provide[Container.auth_service]),
     conversation_service: ConversationService = Depends(Provide[Container.conversation_service]),
@@ -32,7 +32,7 @@ async def get_latest_conversation(
 
 @router.post("")
 @inject
-async def create_new_conversation(
+def create_new_conversation(
     token: Annotated[str, Depends(oauth2_scheme)],
     auth_service: AuthService = Depends(Provide[Container.auth_service]),
     conversation_service: ConversationService = Depends(Provide[Container.conversation_service]),
@@ -43,7 +43,7 @@ async def create_new_conversation(
 
 @router.delete("")
 @inject
-async def clear_conversations(
+def clear_conversations(
     token: Annotated[str, Depends(oauth2_scheme)],
     auth_service: AuthService = Depends(Provide[Container.auth_service]),
     conversation_service: ConversationService = Depends(Provide[Container.conversation_service]),

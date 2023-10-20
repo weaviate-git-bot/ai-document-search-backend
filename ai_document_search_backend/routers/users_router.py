@@ -17,7 +17,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 @router.get("/me")
 @inject
-async def read_users_me(
+def read_users_me(
     token: Annotated[str, Depends(oauth2_scheme)],
     auth_service: AuthService = Depends(Provide[Container.auth_service]),
 ) -> User:

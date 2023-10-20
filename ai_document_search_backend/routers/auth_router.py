@@ -15,7 +15,7 @@ router = APIRouter(
 
 @router.post("/token")
 @inject
-async def login_for_access_token(
+def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     auth_service: AuthService = Depends(Provide[Container.auth_service]),
 ) -> Token:
