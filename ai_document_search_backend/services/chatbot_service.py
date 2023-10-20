@@ -28,11 +28,16 @@ class ChatbotService(BaseService):
         *,
         weaviate_client: weaviate.Client,
         openai_api_key: str,
+        embedding_model: str,
+        question_answering_model: str,
+        condense_question_model: str,
         verbose: bool = False,
         temperature: float = 0,
     ):
         self.client = weaviate_client
-        self.embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
+        self.question_answering_model = question_answering_model
+        self.condense_question_model = condense_question_model
+        self.embeddings = OpenAIEmbeddings(model=embedding_model, openai_api_key=openai_api_key)
         self.openai_api_key = openai_api_key
         self.verbose = verbose
         self.temperature = temperature
@@ -75,12 +80,14 @@ class ChatbotService(BaseService):
             text_key="text",
             attributes=self.custom_metadata_properties + ["page"],
         )
-        llm = ChatOpenAI(openai_api_key=self.openai_api_key, temperature=self.temperature)
+        question_answering_llm = ChatOpenAI(model=self.question_answering_model, openai_api_key=self.openai_api_key, temperature=self.temperature)
+        condense_question_llm = ChatOpenAI(model=self.condense_question_model, openai_api_key=self.openai_api_key, temperature=self.temperature)
         qa = ConversationalRetrievalChain.from_llm(
-            llm=llm,
+            llm=question_answering_llm,
             retriever=vectorstore.as_retriever(),
             verbose=self.verbose,
             return_source_documents=True,
+            condense_question_llm=condense_question_llm
         )
 
         self.logger.info(f"Answering question: {question}")
