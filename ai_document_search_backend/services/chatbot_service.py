@@ -24,15 +24,15 @@ class ChatbotAnswer(BaseModel):
 
 class ChatbotService(BaseService):
     def __init__(
-        self,
-        *,
-        weaviate_client: weaviate.Client,
-        openai_api_key: str,
-        embedding_model: str,
-        question_answering_model: str,
-        condense_question_model: str,
-        verbose: bool = False,
-        temperature: float = 0,
+            self,
+            *,
+            weaviate_client: weaviate.Client,
+            openai_api_key: str,
+            embedding_model: str,
+            question_answering_model: str,
+            condense_question_model: str,
+            verbose: bool = False,
+            temperature: float = 0,
     ):
         self.client = weaviate_client
         self.question_answering_model = question_answering_model
@@ -80,11 +80,16 @@ class ChatbotService(BaseService):
             text_key="text",
             attributes=self.custom_metadata_properties + ["page"],
         )
-        question_answering_llm = ChatOpenAI(model=self.question_answering_model, openai_api_key=self.openai_api_key, temperature=self.temperature)
-        condense_question_llm = ChatOpenAI(model=self.condense_question_model, openai_api_key=self.openai_api_key, temperature=self.temperature)
+        question_answering_llm = ChatOpenAI(model=self.question_answering_model, openai_api_key=self.openai_api_key,
+                                            temperature=self.temperature)
+        condense_question_llm = ChatOpenAI(model=self.condense_question_model, openai_api_key=self.openai_api_key,
+                                           temperature=self.temperature)
         qa = ConversationalRetrievalChain.from_llm(
             llm=question_answering_llm,
-            retriever=vectorstore.as_retriever(),
+            retriever=vectorstore.as_retriever(search_kwargs={
+                "additional": ["certainty", "distance"],
+                "k": 4
+            }),
             verbose=self.verbose,
             return_source_documents=True,
             condense_question_llm=condense_question_llm
@@ -100,6 +105,8 @@ class ChatbotService(BaseService):
                 shortname=source.metadata["shortname"],
                 link=source.metadata["link"],
                 page=source.metadata["page"],
+                certainty=round(source.metadata["_additional"]["certainty"], 3),
+                distance=round(source.metadata["_additional"]["distance"], 3),
             )
             for source in result["source_documents"]
         ]
