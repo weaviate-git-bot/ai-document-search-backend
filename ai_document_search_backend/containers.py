@@ -70,10 +70,12 @@ class Container(containers.DeclarativeContainer):
         ChatbotService,
         weaviate_client=weaviate_client,
         openai_api_key=config.openai.api_key,
-        verbose=config.chatbot.verbose,
-        temperature=config.chatbot.temperature,
         question_answering_model=config.chatbot.question_answering_model,
         condense_question_model=config.chatbot.condense_question_model,
+        weaviate_class_name=config.weaviate.class_name,
+        num_sources=config.chatbot.num_sources,
+        verbose=config.chatbot.verbose,
+        temperature=config.chatbot.temperature,
     )
 
     config.auth.secret_key.from_env("AUTH_SECRET_KEY")

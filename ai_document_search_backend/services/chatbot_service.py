@@ -29,6 +29,8 @@ class ChatbotService(BaseService):
         openai_api_key: str,
         question_answering_model: str,
         condense_question_model: str,
+        weaviate_class_name: str,
+        num_sources: int = 4,
         verbose: bool = False,
         temperature: float = 0,
     ):
@@ -36,14 +38,13 @@ class ChatbotService(BaseService):
         self.question_answering_model = question_answering_model
         self.condense_question_model = condense_question_model
         self.openai_api_key = openai_api_key
+        self.weaviate_class_name = weaviate_class_name
+        self.num_sources = num_sources
         self.verbose = verbose
         self.temperature = temperature
 
-        self.weaviate_class_name = "UnstructuredDocument"
         self.text_key = "text"
         self.custom_metadata_properties = ["isin", "shortname", "link"]
-
-        self.k = 4
 
         super().__init__()
 
@@ -180,7 +181,7 @@ class ChatbotService(BaseService):
         qa = ConversationalRetrievalChain.from_llm(
             llm=question_answering_llm,
             retriever=vectorstore.as_retriever(
-                search_kwargs={"additional": ["certainty", "distance"], "k": self.k}
+                search_kwargs={"additional": ["certainty", "distance"], "k": self.num_sources}
             ),
             condense_question_llm=condense_question_llm,
             return_source_documents=True,

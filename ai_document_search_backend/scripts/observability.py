@@ -47,9 +47,7 @@ def print_schema(client, class_name: str) -> None:
 
 
 @inject
-def main(client: weaviate.Client = Provide[Container.weaviate_client]) -> None:
-    class_name = "UnstructuredDocument"
-
+def main(client: weaviate.Client = Provide[Container.weaviate_client], class_name: str = Provide[Container.config.weaviate.class_name]) -> None:
     number_of_objects = get_number_of_objects(client, class_name)
     print(f"Number of objects: {number_of_objects}")
 
