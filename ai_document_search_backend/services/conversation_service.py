@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from ai_document_search_backend.database_providers.conversation_database import (
     Conversation,
@@ -34,4 +34,4 @@ class ConversationService(BaseService):
 
     @staticmethod
     def __get_current_time() -> str:
-        return datetime.now().isoformat()
+        return datetime.now(timezone.utc).isoformat()
