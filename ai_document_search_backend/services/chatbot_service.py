@@ -58,8 +58,11 @@ class ChatbotService(BaseService):
         df = pd.read_csv(metadata_path)
         pdf_page_objects = []
         for doc in documents:
+            text = doc.page_content
+            if text == "":
+                continue
             pdf_page_object = {
-                self.text_key: doc.page_content,
+                self.text_key: text,
                 "page": doc.metadata["page"],
                 "source": doc.metadata["source"],
             }
