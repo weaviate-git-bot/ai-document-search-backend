@@ -5,6 +5,7 @@ auth:
   access_token_expire_minutes: 0 # 0 = never
 weaviate:
   url: "https://ai-document-search-backend-dev-zohdvss8.weaviate.network"
+  class_name: "UnstructuredDocument"
 cosmos:
   url: "https://cosmos-docsearch-dev.documents.azure.com:443/"
   db_name: "NordicTrustee"
@@ -12,3 +13,6 @@ cosmos:
 chatbot:
   verbose: false
   temperature: 0 # randomness, 0 = deterministic
+  question_answering_model: "gpt-3.5-turbo" # can try e.g. "gpt-4"
+  condense_question_model: "gpt-3.5-turbo" # can try e.g. "gpt-4"
+  num_sources: 4 # number of sources to use to answer each question

@@ -1,5 +1,5 @@
 import pytest
-from anys import ANY_STR, ANY_LIST, ANY_INT
+from anys import ANY_STR, ANY_LIST, ANY_INT, ANY_FLOAT
 from fastapi.testclient import TestClient
 
 from ai_document_search_backend.application import app
@@ -59,6 +59,8 @@ def test_chatbot_response(get_token):
         "shortname": ANY_STR,
         "link": ANY_STR,
         "page": ANY_INT,
+        "certainty": ANY_FLOAT,
+        "distance": ANY_FLOAT,
     }
 
 

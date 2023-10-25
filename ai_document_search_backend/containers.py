@@ -59,12 +59,21 @@ class Container(containers.DeclarativeContainer):
         weaviate.Client,
         url=config.weaviate.url,
         auth_client_secret=auth_client_secret,
+        additional_headers=providers.Dict(
+            {
+                "X-OpenAI-Api-Key": config.openai.api_key,
+            }
+        ),
     )
 
     chatbot_service = providers.Factory(
         ChatbotService,
         weaviate_client=weaviate_client,
         openai_api_key=config.openai.api_key,
+        question_answering_model=config.chatbot.question_answering_model,
+        condense_question_model=config.chatbot.condense_question_model,
+        weaviate_class_name=config.weaviate.class_name,
+        num_sources=config.chatbot.num_sources,
         verbose=config.chatbot.verbose,
         temperature=config.chatbot.temperature,
     )

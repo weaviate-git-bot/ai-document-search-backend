@@ -1,3 +1,5 @@
+import json
+
 import weaviate
 from dependency_injector.wiring import inject, Provide
 
@@ -17,12 +19,11 @@ def get_batch_with_cursor(client, class_name, class_properties, batch_size, curs
         return query.do()
 
 
-def get_number_of_objects(client: weaviate.Client) -> int:
+def get_number_of_objects(client: weaviate.Client, class_name: str) -> int:
     """
     Source: https://weaviate.io/developers/weaviate/manage-data/read-all-objects
     """
 
-    class_name = "UnstructuredDocument"
     cursor = None
     aggregate_count = 0
     while True:
@@ -41,10 +42,19 @@ def get_number_of_objects(client: weaviate.Client) -> int:
     return aggregate_count
 
 
+def print_schema(client, class_name: str) -> None:
+    print(json.dumps(client.schema.get(class_name), indent=2))
+
+
 @inject
-def main(client: weaviate.Client = Provide[Container.weaviate_client]) -> None:
-    number_of_objects = get_number_of_objects(client)
+def main(
+    client: weaviate.Client = Provide[Container.weaviate_client],
+    class_name: str = Provide[Container.config.weaviate.class_name],
+) -> None:
+    number_of_objects = get_number_of_objects(client, class_name)
     print(f"Number of objects: {number_of_objects}")
+
+    print_schema(client, class_name)
 
 
 if __name__ == "__main__":

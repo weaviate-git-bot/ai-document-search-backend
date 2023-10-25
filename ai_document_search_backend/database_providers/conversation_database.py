@@ -9,6 +9,8 @@ class Source(BaseModel):
     shortname: str
     link: str
     page: int
+    certainty: float
+    distance: float
 
 
 class Message(BaseModel):

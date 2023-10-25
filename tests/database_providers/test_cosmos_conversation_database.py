@@ -18,12 +18,16 @@ bot_message = Message(
             shortname="Bond 2021",
             link="https://www.example.com/bond1.pdf",
             page=1,
+            certainty=0.9,
+            distance=0.1,
         ),
         Source(
             isin="NO2222222222",
             shortname="Bond 2022",
             link="https://www.example.com/bond2.pdf",
             page=5,
+            certainty=0.8,
+            distance=0.2,
         ),
     ],
 )
