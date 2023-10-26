@@ -88,3 +88,21 @@ def test_chat_history(get_token):
     )
     assert response.status_code == 200
     assert response.json()["text"] == ANY_STR
+
+
+def test_gets_available_filters(get_token):
+    response = client.get("/chatbot/filter", headers={"Authorization": f"Bearer {get_token}"})
+    assert response.status_code == 200
+    response_data = response.json()
+    assert response_data == {
+        "isin": ANY_LIST,
+        "shortname": ANY_LIST,
+    }
+    assert response_data["isin"][0] == {
+        "value": ANY_STR,
+        "count": ANY_INT,
+    }
+    assert response_data["shortname"][0] == {
+        "value": ANY_STR,
+        "count": ANY_INT,
+    }

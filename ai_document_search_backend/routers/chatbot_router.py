@@ -10,13 +10,13 @@ from ai_document_search_backend.database_providers.conversation_database import 
 from ai_document_search_backend.services.chatbot_service import (
     ChatbotService,
     ChatbotAnswer,
+    Filters,
 )
 from ai_document_search_backend.services.auth_service import AuthService
 from ai_document_search_backend.services.conversation_service import ConversationService
 from ai_document_search_backend.utils.conversation_to_chat_history import (
     conversation_to_chat_history,
 )
-
 
 router = APIRouter(
     prefix="/chatbot",
@@ -55,3 +55,15 @@ def answer_question(
     )
 
     return answer
+
+
+@router.get("/filter")
+@inject
+def get_filters(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    auth_service: AuthService = Depends(Provide[Container.auth_service]),
+    chatbot_service: ChatbotService = Depends(Provide[Container.chatbot_service]),
+) -> Filters:
+    auth_service.get_current_user(token)
+    filters = chatbot_service.get_filters()
+    return filters

@@ -21,6 +21,16 @@ class ChatbotAnswer(BaseModel):
     sources: list[Source]
 
 
+class FilterOption(BaseModel):
+    value: str
+    count: int
+
+
+class Filters(BaseModel):
+    isin: list[FilterOption]
+    shortname: list[FilterOption]
+
+
 class ChatbotService(BaseService):
     def __init__(
         self,
@@ -45,6 +55,8 @@ class ChatbotService(BaseService):
 
         self.text_key = "text"
         self.custom_metadata_properties = ["isin", "shortname", "link"]
+        # TODO
+        # self.filterable_properties = ["isin", "shortname"]
 
         super().__init__()
 
@@ -214,9 +226,31 @@ class ChatbotService(BaseService):
 
         self.client.schema.delete_all()
 
+    def get_filters(self) -> Filters:
+        return Filters(
+            isin=self.__get_filter_options("isin"),
+            shortname=self.__get_filter_options("shortname"),
+        )
+
     def __get_number_of_objects(self) -> int:
         result = self.client.query.aggregate(self.weaviate_class_name).with_meta_count().do()
         number_of_objects = result["data"]["Aggregate"][self.weaviate_class_name][0]["meta"][
             "count"
         ]
         return number_of_objects
+
+    def __get_filter_options(self, property_name: str) -> list[FilterOption]:
+        result = (
+            self.client.query.aggregate(self.weaviate_class_name)
+            .with_group_by_filter(property_name)
+            .with_fields("groupedBy { path value } meta { count }")
+            .do()
+        )
+        filter_options = [
+            FilterOption(
+                value=group["groupedBy"]["value"],
+                count=group["meta"]["count"],
+            )
+            for group in result["data"]["Aggregate"][self.weaviate_class_name]
+        ]
+        return filter_options
