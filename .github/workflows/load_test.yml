@@ -43,4 +43,4 @@ jobs:
         run: poetry install --no-interaction --no-root
 
       - name: Load test
-        run: poetry run locust -f locustfile.py --headless --host https://ai-document-search-backend.azurewebsites.net --users 5 --spawn-rate 1 --run-time 1m
+        run: poetry run locust -f locustfile.py --headless --host https://ai-document-search-backend.azurewebsites.net --users 5 --spawn-rate 5 --run-time 1m

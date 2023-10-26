@@ -19,7 +19,7 @@ tested using [pytest](https://docs.pytest.org/en/stable/).
 
 ## How to run the server locally
 
-The server is available at http://localhost:8000/.
+The server is available at http://localhost:8000.
 
 Start by creating an `.env` file in the project root with the following content:
 
@@ -46,6 +46,14 @@ AUTH_PASSWORD=any_password
 ### Unit tests
 
 - `poetry run pytest`
+
+### Load tests
+
+- Start the server locally.
+- `poetry run locust`
+- Open http://localhost:8089/ in your browser.
+- Enter the number of users, the spawn rate and Host (http://localhost:8000 – without trailing slash).
+- Click "Start swarming".
 
 ### Lint autoformat
 
