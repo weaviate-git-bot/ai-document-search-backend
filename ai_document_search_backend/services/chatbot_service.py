@@ -12,6 +12,7 @@ from ai_document_search_backend.database_providers.conversation_database import 
     Source,
 )
 from ai_document_search_backend.services.base_service import BaseService
+from ai_document_search_backend.utils.filters import construct_and_filter, Filter
 
 Exchange = tuple[str, str]
 
@@ -173,7 +174,9 @@ class ChatbotService(BaseService):
             f"Number of {self.weaviate_class_name} objects in Weaviate: {self.__get_number_of_objects()}"
         )
 
-    def answer(self, question: str, chat_history: list[Exchange]) -> ChatbotAnswer:
+    def answer(
+        self, question: str, chat_history: list[Exchange], filters: list[Filter]
+    ) -> ChatbotAnswer:
         """Answer the question"""
 
         vectorstore = Weaviate(
@@ -196,7 +199,11 @@ class ChatbotService(BaseService):
         qa = ConversationalRetrievalChain.from_llm(
             llm=question_answering_llm,
             retriever=vectorstore.as_retriever(
-                search_kwargs={"additional": ["certainty", "distance"], "k": self.num_sources}
+                search_kwargs={
+                    "additional": ["certainty", "distance"],
+                    "k": self.num_sources,
+                    "where_filter": construct_and_filter(filters),
+                }
             ),
             condense_question_llm=condense_question_llm,
             return_source_documents=True,

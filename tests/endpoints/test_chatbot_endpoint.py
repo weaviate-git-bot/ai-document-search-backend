@@ -30,11 +30,16 @@ def get_token():
     return response.json()["access_token"]
 
 
-def test_not_authenticated():
+def test_not_authenticated_root_endpoint():
     response = client.post(
         "/chatbot/",
-        json={"question": "What is the Loan to value ratio?"},
+        json={"question": "What is the Loan to value ratio?", "filters": []},
     )
+    assert response.status_code == 401
+
+
+def test_not_authenticated_filter_endpoint():
+    response = client.get("/chatbot/filter")
     assert response.status_code == 401
 
 
@@ -44,9 +49,9 @@ def test_chatbot_response(get_token):
     APP_OPENAI_API_KEY and APP_WEAVIATE_API_KEY environment variables must be set.
     """
     response = client.post(
-        "/chatbot/",
+        "/chatbot",
         headers={"Authorization": f"Bearer {get_token}"},
-        json={"question": "What is the Loan to value ratio?"},
+        json={"question": "What is the Loan to value ratio?", "filters": []},
     )
     assert response.status_code == 200
     response_data = response.json()
@@ -70,9 +75,9 @@ def test_chat_history(get_token):
     APP_OPENAI_API_KEY and APP_WEAVIATE_API_KEY environment variables must be set.
     """
     response = client.post(
-        "/chatbot/",
+        "/chatbot",
         headers={"Authorization": f"Bearer {get_token}"},
-        json={"question": "What is the Loan to value ratio?"},
+        json={"question": "What is the Loan to value ratio?", "filters": []},
     )
     assert response.status_code == 200
     assert response.json()["text"] == ANY_STR
@@ -82,9 +87,9 @@ def test_chat_history(get_token):
     assert len(response.json()["messages"]) == 2
 
     response = client.post(
-        "/chatbot/",
+        "/chatbot",
         headers={"Authorization": f"Bearer {get_token}"},
-        json={"question": "What value should it not exceed?"},
+        json={"question": "What value should it not exceed?", "filters": []},
     )
     assert response.status_code == 200
     assert response.json()["text"] == ANY_STR
@@ -106,3 +111,33 @@ def test_gets_available_filters(get_token):
         "value": ANY_STR,
         "count": ANY_INT,
     }
+
+
+@pytest.mark.parametrize(
+    "filters",
+    [
+        [],
+        [{"property_name": "isin", "values": []}],
+        [
+            {"property_name": "isin", "values": []},
+            {"property_name": "shortname", "values": ["Bond 2021"]},
+        ],
+        [{"property_name": "isin", "values": ["NO1111111111"]}],
+        [{"property_name": "isin", "values": ["NO1111111111", "NO2222222222"]}],
+        [
+            {"property_name": "isin", "values": ["NO1111111111"]},
+            {"property_name": "shortname", "values": ["Bond 2021"]},
+        ],
+        [
+            {"property_name": "isin", "values": ["NO1111111111", "NO2222222222"]},
+            {"property_name": "shortname", "values": ["Bond 2021", "Bond 2022"]},
+        ],
+    ],
+)
+def test_filters(get_token, filters):
+    response = client.post(
+        "/chatbot",
+        headers={"Authorization": f"Bearer {get_token}"},
+        json={"question": "What value should it not exceed?", "filters": filters},
+    )
+    assert response.status_code == 200

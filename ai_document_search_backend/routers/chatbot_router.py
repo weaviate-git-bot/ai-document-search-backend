@@ -11,6 +11,7 @@ from ai_document_search_backend.services.chatbot_service import (
     ChatbotService,
     ChatbotAnswer,
     Filters,
+    Filter,
 )
 from ai_document_search_backend.services.auth_service import AuthService
 from ai_document_search_backend.services.conversation_service import ConversationService
@@ -28,6 +29,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 class ChatbotRequest(BaseModel):
     question: str
+    filters: list[Filter]
 
 
 @router.post("")
@@ -45,7 +47,8 @@ def answer_question(
     chat_history = conversation_to_chat_history(conversation)
 
     question = request.question
-    answer = chatbot_service.answer(question, chat_history)
+    filters = request.filters
+    answer = chatbot_service.answer(question, chat_history, filters)
 
     conversation_service.add_to_latest_conversation(
         username, Message(is_from_bot=False, text=question)
