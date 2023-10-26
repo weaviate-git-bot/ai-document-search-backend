@@ -56,8 +56,6 @@ class ChatbotService(BaseService):
 
         self.text_key = "text"
         self.custom_metadata_properties = ["isin", "shortname", "link"]
-        # TODO
-        # self.filterable_properties = ["isin", "shortname"]
 
         super().__init__()
 

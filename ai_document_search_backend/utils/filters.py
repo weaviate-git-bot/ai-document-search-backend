@@ -1,8 +1,10 @@
+from typing import Literal
+
 from pydantic import BaseModel
 
 
 class Filter(BaseModel):
-    property_name: str
+    property_name: Literal["isin", "shortname"]
     values: list[str]
 
 

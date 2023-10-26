@@ -138,6 +138,30 @@ def test_filters(get_token, filters):
     response = client.post(
         "/chatbot",
         headers={"Authorization": f"Bearer {get_token}"},
-        json={"question": "What value should it not exceed?", "filters": filters},
+        json={"question": "What is the Loan to value ratio?", "filters": filters},
     )
     assert response.status_code == 200
+
+
+def test_invalid_filter_property_name():
+    response = client.post(
+        "/chatbot",
+        headers={"Authorization": f"Bearer {get_token}"},
+        json={
+            "question": "What is the Loan to value ratio?",
+            "filters": [{"property_name": "invalid", "values": []}],
+        },
+    )
+    assert response.status_code == 422
+    assert response.json() == {
+        "detail": [
+            {
+                "ctx": {"expected": "'isin' or 'shortname'"},
+                "input": "invalid",
+                "loc": ["body", "filters", 0, "property_name"],
+                "msg": "Input should be 'isin' or 'shortname'",
+                "type": "literal_error",
+                "url": "https://errors.pydantic.dev/2.4/v/literal_error",
+            }
+        ]
+    }
