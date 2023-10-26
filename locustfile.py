@@ -16,7 +16,9 @@ class ChatUser(HttpUser):
         username = os.getenv("AUTH_USERNAME")
         password = os.getenv("AUTH_PASSWORD")
 
-        response = self.client.post("/auth/token", data={"username": username, "password": password})
+        response = self.client.post(
+            "/auth/token", data={"username": username, "password": password}
+        )
         self.token = response.json()["access_token"]
 
         # create new conversation
@@ -24,9 +26,13 @@ class ChatUser(HttpUser):
 
     @task
     def ask_question(self):
-        with self.client.post("/chatbot",
-                              json={"question": "What is the Loan to value ratio?"},
-                              headers={"Authorization": f"Bearer {self.token}"},
-                              catch_response=True) as response:
+        with self.client.post(
+            "/chatbot",
+            json={"question": "What is the Loan to value ratio?"},
+            headers={"Authorization": f"Bearer {self.token}"},
+            catch_response=True,
+        ) as response:
             if response.elapsed.total_seconds() > chatbot_response_limit_sec:
-                response.failure(f"Chatbot response took more than {chatbot_response_limit_sec} seconds.")
+                response.failure(
+                    f"Chatbot response took more than {chatbot_response_limit_sec} seconds."
+                )
