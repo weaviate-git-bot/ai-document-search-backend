@@ -28,7 +28,7 @@ class ChatUser(HttpUser):
         self.client.post("/conversation", headers={"Authorization": f"Bearer {self.token}"})
 
     @events.test_stop.add_listener
-    def on_test_stop(environment: Environment):
+    def on_test_stop(environment: Environment):  # noqa: N805
         avg_chatbot_time = round(environment.stats.entries[("/chatbot", "POST")].avg_response_time)
         logging.info(f"Average /chatbot response time: {avg_chatbot_time} ms")
         if avg_chatbot_time > chatbot_response_soft_limit_sec * 1000:
