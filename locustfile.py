@@ -1,9 +1,12 @@
+import logging
 import os
 
 from dotenv import load_dotenv
-from locust import HttpUser, task
+from locust import HttpUser, task, events
+from locust.env import Environment
 
-chatbot_response_limit_sec = 15
+chatbot_response_hard_limit_sec = 15
+chatbot_response_soft_limit_sec = 5
 
 
 class ChatUser(HttpUser):
@@ -24,6 +27,15 @@ class ChatUser(HttpUser):
         # create new conversation
         self.client.post("/conversation", headers={"Authorization": f"Bearer {self.token}"})
 
+    @events.test_stop.add_listener
+    def on_test_stop(environment: Environment):
+        avg_chatbot_time = round(environment.stats.entries[("/chatbot", "POST")].avg_response_time)
+        logging.info(f"Average /chatbot response time: {avg_chatbot_time} ms")
+        if avg_chatbot_time > chatbot_response_soft_limit_sec * 1000:
+            logging.warning(
+                f"Average /chatbot response time is greater than {chatbot_response_soft_limit_sec} seconds."
+            )
+
     @task
     def ask_question(self):
         with self.client.post(
@@ -32,7 +44,7 @@ class ChatUser(HttpUser):
             headers={"Authorization": f"Bearer {self.token}"},
             catch_response=True,
         ) as response:
-            if response.elapsed.total_seconds() > chatbot_response_limit_sec:
+            if response.elapsed.total_seconds() > chatbot_response_hard_limit_sec:
                 response.failure(
-                    f"Chatbot response took more than {chatbot_response_limit_sec} seconds."
+                    f"Chatbot response took more than {chatbot_response_hard_limit_sec} seconds."
                 )
