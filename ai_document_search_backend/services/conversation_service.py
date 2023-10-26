@@ -25,8 +25,10 @@ class ConversationService(BaseService):
         self.conversation_database.add_conversation(username, new_conversation)
         return new_conversation
 
-    def add_to_latest_conversation(self, username: str, message: Message) -> None:
-        self.conversation_database.add_to_latest_conversation(username, message)
+    def add_to_latest_conversation(
+        self, username: str, user_message: Message, bot_message: Message
+    ) -> None:
+        self.conversation_database.add_to_latest_conversation(username, user_message, bot_message)
 
     def clear_conversations(self, username: str) -> str:
         self.conversation_database.clear_conversations(username)

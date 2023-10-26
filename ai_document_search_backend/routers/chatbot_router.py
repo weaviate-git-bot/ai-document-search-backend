@@ -17,7 +17,6 @@ from ai_document_search_backend.utils.conversation_to_chat_history import (
     conversation_to_chat_history,
 )
 
-
 router = APIRouter(
     prefix="/chatbot",
     tags=["chatbot"],
@@ -48,10 +47,9 @@ def answer_question(
     answer = chatbot_service.answer(question, chat_history)
 
     conversation_service.add_to_latest_conversation(
-        username, Message(is_from_bot=False, text=question)
-    )
-    conversation_service.add_to_latest_conversation(
-        username, Message(is_from_bot=True, text=answer.text, sources=answer.sources)
+        username,
+        Message(is_from_bot=False, text=question),
+        Message(is_from_bot=True, text=answer.text, sources=answer.sources),
     )
 
     return answer

@@ -22,11 +22,14 @@ class InMemoryConversationDatabase(ConversationDatabase):
     def add_conversation(self, username: str, conversation: Conversation) -> None:
         self.db.setdefault(username, []).append(conversation)
 
-    def add_to_latest_conversation(self, username: str, message: Message) -> None:
+    def add_to_latest_conversation(
+        self, username: str, user_message: Message, bot_message: Message
+    ) -> None:
         latest_conversation = self.get_latest_conversation(username)
         if latest_conversation is None:
             raise ValueError(f"No conversation found for user {username}")
-        latest_conversation.messages.append(message)
+        latest_conversation.messages.append(user_message)
+        latest_conversation.messages.append(bot_message)
 
     def clear_conversations(self, username: str) -> None:
         self.db[username] = []
