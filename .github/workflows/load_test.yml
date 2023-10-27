@@ -43,4 +43,7 @@ jobs:
         run: poetry install --no-interaction --no-root
 
       - name: Load test
+        env:
+          AUTH_USERNAME: ${{ secrets.AUTH_USERNAME }}
+          AUTH_PASSWORD: ${{ secrets.AUTH_PASSWORD }}
         run: poetry run locust -f locustfile.py --headless --host https://ai-document-search-backend.azurewebsites.net --users 5 --spawn-rate 5 --run-time 1m
