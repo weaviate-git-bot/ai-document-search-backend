@@ -29,7 +29,13 @@ class ChatUser(HttpUser):
 
     @events.test_stop.add_listener
     def on_test_stop(environment: Environment):  # noqa: N805
-        avg_chatbot_time = round(environment.stats.entries[("/chatbot", "POST")].avg_response_time)
+        chatbot_entries = environment.stats.entries[("/chatbot", "POST")]
+        if chatbot_entries.num_requests == 0:
+            logging.error("No /chatbot requests completed during the test run.")
+            environment.process_exit_code = 1
+            return
+
+        avg_chatbot_time = round(chatbot_entries.avg_response_time)
         logging.info(f"Average /chatbot response time: {avg_chatbot_time} ms")
         if avg_chatbot_time > chatbot_response_soft_limit_sec * 1000:
             logging.warning(
@@ -39,10 +45,10 @@ class ChatUser(HttpUser):
     @task
     def ask_question(self):
         with self.client.post(
-            "/chatbot",
-            json={"question": "What is the Loan to value ratio?"},
-            headers={"Authorization": f"Bearer {self.token}"},
-            catch_response=True,
+                "/chatbot",
+                json={"question": "What is the Loan to value ratio?"},
+                headers={"Authorization": f"Bearer {self.token}"},
+                catch_response=True,
         ) as response:
             if response.elapsed.total_seconds() > chatbot_response_hard_limit_sec:
                 response.failure(
