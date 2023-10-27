@@ -1,9 +1,9 @@
 # AI Document Search Backend
 
 [![Lint and test](https://github.com/petr7555/ai-document-search-backend/actions/workflows/lint_and_test.yml/badge.svg)](https://github.com/petr7555/ai-document-search-backend/actions/workflows/lint_and_test.yml)
+[![Load test](https://github.com/petr7555/ai-document-search-backend/actions/workflows/load_test.yml/badge.svg)](https://github.com/petr7555/ai-document-search-backend/actions/workflows/load_test.yml)
 ![Auto-updating coverage badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/petr7555/33a367226c0ebc77e2e059ec7e9204fb/raw/pytest-coverage-comment__master.json)
 [![Build and deploy container app to Azure Web App - ai-document-search-backend](https://github.com/petr7555/ai-document-search-backend/actions/workflows/master_ai-document-search-backend.yml/badge.svg)](https://github.com/petr7555/ai-document-search-backend/actions/workflows/master_ai-document-search-backend.yml)
-[![Load test](https://github.com/petr7555/ai-document-search-backend/actions/workflows/load_test.yml/badge.svg)](https://github.com/petr7555/ai-document-search-backend/actions/workflows/load_test.yml)
 ![Supported Python versions](https://img.shields.io/badge/Python-3.9%20%7C%203.10%20%7C%203.11-blue)
 
 The server is deployed at https://ai-document-search-backend.azurewebsites.net/.
