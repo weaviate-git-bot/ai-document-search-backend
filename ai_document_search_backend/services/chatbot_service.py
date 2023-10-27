@@ -60,6 +60,8 @@ class ChatbotService(BaseService):
         self.logger.info("Loading PDFs")
         loader = PyPDFDirectoryLoader(pdf_dir_path)
         documents = loader.load()
+        if len(documents) == 0:
+            raise ValueError(f"No PDFs found in {pdf_dir_path}")
 
         df = pd.read_csv(metadata_path)
         pdf_page_objects = []
