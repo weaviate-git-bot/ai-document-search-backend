@@ -6,7 +6,6 @@ from .database_providers.cosmos_conversation_database import CosmosConversationD
 from .services.auth_service import AuthService
 from .services.chatbot_service import ChatbotService
 from .services.conversation_service import ConversationService
-from .services.summarization_service import SummarizationService
 from .utils.relative_path_from_file import relative_path_from_file
 
 CONFIG_PATH = relative_path_from_file(__file__, "../config.yml")
@@ -16,7 +15,6 @@ class Container(containers.DeclarativeContainer):
     # Specify modules in which you want to use the @inject decorator.
     wiring_config = containers.WiringConfiguration(
         modules=[
-            ".routers.summarization_router",
             ".routers.auth_router",
             ".routers.users_router",
             ".routers.chatbot_router",
@@ -25,10 +23,6 @@ class Container(containers.DeclarativeContainer):
     )
 
     config = providers.Configuration(yaml_files=[CONFIG_PATH])
-
-    summarization_service = providers.Factory(
-        SummarizationService,
-    )
 
     load_dotenv()
 
