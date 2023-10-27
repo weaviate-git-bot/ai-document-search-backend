@@ -22,14 +22,9 @@ class ChatbotAnswer(BaseModel):
     sources: list[Source]
 
 
-class FilterOption(BaseModel):
-    value: str
-    count: int
-
-
 class Filters(BaseModel):
-    isin: list[FilterOption]
-    shortname: list[FilterOption]
+    isin: list[str]
+    shortname: list[str]
 
 
 class ChatbotService(BaseService):
@@ -233,8 +228,8 @@ class ChatbotService(BaseService):
 
     def get_filters(self) -> Filters:
         return Filters(
-            isin=self.__get_filter_options("isin"),
-            shortname=self.__get_filter_options("shortname"),
+            isin=self.__get_available_values("isin"),
+            shortname=self.__get_available_values("shortname"),
         )
 
     def __get_number_of_objects(self) -> int:
@@ -244,18 +239,15 @@ class ChatbotService(BaseService):
         ]
         return number_of_objects
 
-    def __get_filter_options(self, property_name: str) -> list[FilterOption]:
+    def __get_available_values(self, property_name: str) -> list[str]:
         result = (
             self.client.query.aggregate(self.weaviate_class_name)
             .with_group_by_filter(property_name)
-            .with_fields("groupedBy { path value } meta { count }")
+            .with_fields("groupedBy { path value }")
             .do()
         )
-        filter_options = [
-            FilterOption(
-                value=group["groupedBy"]["value"],
-                count=group["meta"]["count"],
-            )
+        available_values = [
+            group["groupedBy"]["value"]
             for group in result["data"]["Aggregate"][self.weaviate_class_name]
         ]
-        return filter_options
+        return available_values

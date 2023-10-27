@@ -103,14 +103,8 @@ def test_gets_available_filters(get_token):
         "isin": ANY_LIST,
         "shortname": ANY_LIST,
     }
-    assert response_data["isin"][0] == {
-        "value": ANY_STR,
-        "count": ANY_INT,
-    }
-    assert response_data["shortname"][0] == {
-        "value": ANY_STR,
-        "count": ANY_INT,
-    }
+    assert response_data["isin"][0] == ANY_STR
+    assert response_data["shortname"][0] == ANY_STR
 
 
 @pytest.mark.parametrize(
