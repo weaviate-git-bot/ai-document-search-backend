@@ -1,6 +1,7 @@
 # AI Document Search Backend
 
 [![Lint and test](https://github.com/petr7555/ai-document-search-backend/actions/workflows/lint_and_test.yml/badge.svg)](https://github.com/petr7555/ai-document-search-backend/actions/workflows/lint_and_test.yml)
+[![Load test](https://github.com/petr7555/ai-document-search-backend/actions/workflows/load_test.yml/badge.svg)](https://github.com/petr7555/ai-document-search-backend/actions/workflows/load_test.yml)
 ![Auto-updating coverage badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/petr7555/33a367226c0ebc77e2e059ec7e9204fb/raw/pytest-coverage-comment__master.json)
 [![Build and deploy container app to Azure Web App - ai-document-search-backend](https://github.com/petr7555/ai-document-search-backend/actions/workflows/master_ai-document-search-backend.yml/badge.svg)](https://github.com/petr7555/ai-document-search-backend/actions/workflows/master_ai-document-search-backend.yml)
 ![Supported Python versions](https://img.shields.io/badge/Python-3.9%20%7C%203.10%20%7C%203.11-blue)
@@ -19,7 +20,7 @@ tested using [pytest](https://docs.pytest.org/en/stable/).
 
 ## How to run the server locally
 
-The server is available at http://localhost:8000/.
+The server is available at http://localhost:8000.
 
 Start by creating an `.env` file in the project root with the following content:
 
@@ -46,6 +47,14 @@ AUTH_PASSWORD=any_password
 ### Unit tests
 
 - `poetry run pytest`
+
+### Load tests
+
+- Start the server locally.
+- `poetry run locust`
+- Open http://localhost:8089/ in your browser.
+- Enter the number of users, the spawn rate and Host (http://localhost:8000 – without trailing slash).
+- Click "Start swarming".
 
 ### Lint autoformat
 

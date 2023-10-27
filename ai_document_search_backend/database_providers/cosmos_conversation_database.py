@@ -48,12 +48,15 @@ class CosmosConversationDatabase(ConversationDatabase):
         }
         self.conversations.create_item(new_conversation)
 
-    def add_to_latest_conversation(self, username: str, message: Message) -> None:
+    def add_to_latest_conversation(
+        self, username: str, user_message: Message, bot_message: Message
+    ) -> None:
         db_conversation = self.__get_latest_db_conversation(username)
         if db_conversation is None:
             raise ValueError(f"No conversation found for user {username}")
 
-        db_conversation["messages"].append(jsonable_encoder(message))
+        db_conversation["messages"].append(jsonable_encoder(user_message))
+        db_conversation["messages"].append(jsonable_encoder(bot_message))
 
         self.conversations.replace_item(item=db_conversation["id"], body=db_conversation)
 

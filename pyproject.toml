@@ -37,6 +37,7 @@ httpx = "^0.24.1"
 black = "^23.9.0"
 ruff = "^0.0.290"
 anys = "^0.3.0"
+locust = "^2.17.0"
 
 [build-system]
 requires = ["poetry-core"]
