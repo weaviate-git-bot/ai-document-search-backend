@@ -161,7 +161,7 @@ def test_invalid_filter_property_name():
                 "loc": ["body", "filters", 0, "property_name"],
                 "msg": "Input should be 'isin' or 'shortname'",
                 "type": "literal_error",
-                "url": "https://errors.pydantic.dev/2.4/v/literal_error",
+                "url": "https://errors.pydantic.dev/2.3/v/literal_error",
             }
         ]
     }

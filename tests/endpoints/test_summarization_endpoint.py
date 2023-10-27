@@ -46,7 +46,7 @@ def test_missing_text_parameter(get_token):
                 "loc": ["query", "text"],
                 "msg": "Field required",
                 "type": "missing",
-                "url": "https://errors.pydantic.dev/2.4/v/missing",
+                "url": "https://errors.pydantic.dev/2.3/v/missing",
             }
         ]
     }
