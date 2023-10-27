@@ -85,30 +85,31 @@ def test_adds_to_latest_conversation_with_no_messages():
     conversation_newer = Conversation(created_at="2021-01-02T00:00:00", messages=[])
     db.add_conversation(test_username, conversation_newer)
     db.add_conversation(test_username, conversation_older)
-    message = Message(is_from_bot=False, text="Hello")
-    db.add_to_latest_conversation(test_username, message)
-
-    assert db.get_latest_conversation(test_username) == Conversation(
-        created_at="2021-01-02T00:00:00", messages=[message]
-    )
-
-
-def test_adds_to_latest_conversation_with_existing_message():
-    conversation_older = Conversation(created_at="2021-01-01T00:00:00", messages=[])
-    conversation_newer = Conversation(created_at="2021-01-02T00:00:00", messages=[user_message])
-    db.add_conversation(test_username, conversation_newer)
-    db.add_conversation(test_username, conversation_older)
-    db.add_to_latest_conversation(test_username, bot_message)
+    db.add_to_latest_conversation(test_username, user_message, bot_message)
 
     assert db.get_latest_conversation(test_username) == Conversation(
         created_at="2021-01-02T00:00:00", messages=[user_message, bot_message]
     )
 
 
-def test_raises_error_when_adding_message_without_any_existing_conversation():
-    message = Message(is_from_bot=False, text="Hello")
+def test_adds_to_latest_conversation_with_existing_messages():
+    conversation_older = Conversation(created_at="2021-01-01T00:00:00", messages=[])
+    conversation_newer = Conversation(
+        created_at="2021-01-02T00:00:00", messages=[user_message, bot_message]
+    )
+    db.add_conversation(test_username, conversation_newer)
+    db.add_conversation(test_username, conversation_older)
+    db.add_to_latest_conversation(test_username, user_message, bot_message)
+
+    assert db.get_latest_conversation(test_username) == Conversation(
+        created_at="2021-01-02T00:00:00",
+        messages=[user_message, bot_message, user_message, bot_message],
+    )
+
+
+def test_raises_error_when_adding_messages_without_any_existing_conversation():
     try:
-        db.add_to_latest_conversation(test_username, message)
+        db.add_to_latest_conversation(test_username, user_message, bot_message)
         assert False
     except ValueError as e:
         assert str(e) == "No conversation found for user test_user"
