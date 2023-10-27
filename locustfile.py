@@ -45,10 +45,10 @@ class ChatUser(HttpUser):
     @task
     def ask_question(self):
         with self.client.post(
-                "/chatbot",
-                json={"question": "What is the Loan to value ratio?"},
-                headers={"Authorization": f"Bearer {self.token}"},
-                catch_response=True,
+            "/chatbot",
+            json={"question": "What is the Loan to value ratio?"},
+            headers={"Authorization": f"Bearer {self.token}"},
+            catch_response=True,
         ) as response:
             if response.elapsed.total_seconds() > chatbot_response_hard_limit_sec:
                 response.failure(
