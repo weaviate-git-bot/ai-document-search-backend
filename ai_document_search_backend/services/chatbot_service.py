@@ -24,7 +24,11 @@ class ChatbotAnswer(BaseModel):
 
 class Filters(BaseModel):
     isin: list[str]
-    shortname: list[str]
+    issuer_name: list[str]
+    filename: list[str]
+    industry: list[str]
+    risk_type: list[str]
+    green: list[str]
 
 
 class ChatbotService(BaseService):
@@ -50,7 +54,16 @@ class ChatbotService(BaseService):
         self.temperature = temperature
 
         self.text_key = "text"
-        self.custom_metadata_properties = ["isin", "shortname", "link"]
+        self.custom_metadata_properties = [
+            "link",
+            "shortname",
+            "isin",
+            "issuer_name",
+            "filename",
+            "industry",
+            "risk_type",
+            "green",
+        ]
 
         super().__init__()
 
@@ -116,12 +129,11 @@ class ChatbotService(BaseService):
                         },
                     },
                     {
-                        "name": "isin",
+                        "name": "link",
                         "dataType": ["text"],
                         "moduleConfig": {
                             "text2vec-openai": {
-                                "skip": False,
-                                "vectorizePropertyName": True,
+                                "skip": True,
                             }
                         },
                     },
@@ -136,11 +148,62 @@ class ChatbotService(BaseService):
                         },
                     },
                     {
-                        "name": "link",
+                        "name": "isin",
                         "dataType": ["text"],
                         "moduleConfig": {
                             "text2vec-openai": {
-                                "skip": True,
+                                "skip": False,
+                                "vectorizePropertyName": True,
+                            }
+                        },
+                    },
+                    {
+                        "name": "issuer_name",
+                        "dataType": ["text"],
+                        "moduleConfig": {
+                            "text2vec-openai": {
+                                "skip": False,
+                                "vectorizePropertyName": True,
+                            }
+                        },
+                    },
+                    {
+                        "name": "filename",
+                        "dataType": ["text"],
+                        "moduleConfig": {
+                            "text2vec-openai": {
+                                "skip": False,
+                                "vectorizePropertyName": True,
+                            }
+                        },
+                    },
+                    {
+                        "name": "industry",
+                        "dataType": ["text"],
+                        "moduleConfig": {
+                            "text2vec-openai": {
+                                "skip": False,
+                                "vectorizePropertyName": True,
+                            }
+                        },
+                    },
+                    {
+                        "name": "risk_type",
+                        "dataType": ["text"],
+                        "moduleConfig": {
+                            "text2vec-openai": {
+                                "skip": False,
+                                "vectorizePropertyName": True,
+                            }
+                        },
+                    },
+                    {
+                        "name": "green",
+                        "dataType": ["text"],
+                        "moduleConfig": {
+                            "text2vec-openai": {
+                                "skip": False,
+                                "vectorizePropertyName": True,
                             }
                         },
                     },
@@ -231,7 +294,11 @@ class ChatbotService(BaseService):
     def get_filters(self) -> Filters:
         return Filters(
             isin=self.__get_available_values("isin"),
-            shortname=self.__get_available_values("shortname"),
+            issuer_name=self.__get_available_values("issuer_name"),
+            filename=self.__get_available_values("filename"),
+            industry=self.__get_available_values("industry"),
+            risk_type=self.__get_available_values("risk_type"),
+            green=self.__get_available_values("green"),
         )
 
     def __get_number_of_objects(self) -> int:

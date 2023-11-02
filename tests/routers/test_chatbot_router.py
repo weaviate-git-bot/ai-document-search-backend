@@ -101,10 +101,18 @@ def test_gets_available_filters(get_token):
     response_data = response.json()
     assert response_data == {
         "isin": ANY_LIST,
-        "shortname": ANY_LIST,
+        "issuer_name": ANY_LIST,
+        "filename": ANY_LIST,
+        "industry": ANY_LIST,
+        "risk_type": ANY_LIST,
+        "green": ANY_LIST,
     }
     assert response_data["isin"][0] == ANY_STR
-    assert response_data["shortname"][0] == ANY_STR
+    assert response_data["issuer_name"][0] == ANY_STR
+    assert response_data["filename"][0] == ANY_STR
+    assert response_data["industry"][0] == ANY_STR
+    assert response_data["risk_type"][0] == ANY_STR
+    assert response_data["green"][0] == ANY_STR
 
 
 @pytest.mark.parametrize(
@@ -114,17 +122,20 @@ def test_gets_available_filters(get_token):
         [{"property_name": "isin", "values": []}],
         [
             {"property_name": "isin", "values": []},
-            {"property_name": "shortname", "values": ["Bond 2021"]},
+            {"property_name": "industry", "values": ["Real Estate - Commercial"]},
         ],
         [{"property_name": "isin", "values": ["NO1111111111"]}],
         [{"property_name": "isin", "values": ["NO1111111111", "NO2222222222"]}],
         [
             {"property_name": "isin", "values": ["NO1111111111"]},
-            {"property_name": "shortname", "values": ["Bond 2021"]},
+            {"property_name": "industry", "values": ["Real Estate - Commercial"]},
         ],
         [
             {"property_name": "isin", "values": ["NO1111111111", "NO2222222222"]},
-            {"property_name": "shortname", "values": ["Bond 2021", "Bond 2022"]},
+            {
+                "property_name": "industry",
+                "values": ["Real Estate - Commercial", "Real Estate - Residential"],
+            },
         ],
     ],
 )
@@ -150,10 +161,14 @@ def test_invalid_filter_property_name():
     assert response.json() == {
         "detail": [
             {
-                "ctx": {"expected": "'isin' or 'shortname'"},
+                "ctx": {
+                    "expected": "'isin', 'issuer_name', 'filename', "
+                    "'industry', 'risk_type' or 'green'"
+                },
                 "input": "invalid",
                 "loc": ["body", "filters", 0, "property_name"],
-                "msg": "Input should be 'isin' or 'shortname'",
+                "msg": "Input should be 'isin', 'issuer_name', 'filename', "
+                "'industry', 'risk_type' or 'green'",
                 "type": "literal_error",
                 "url": "https://errors.pydantic.dev/2.3/v/literal_error",
             }

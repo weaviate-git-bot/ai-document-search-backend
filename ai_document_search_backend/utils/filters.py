@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class Filter(BaseModel):
-    property_name: Literal["isin", "shortname"]
+    property_name: Literal["isin", "issuer_name", "filename", "industry", "risk_type", "green"]
     values: list[str]
 
 

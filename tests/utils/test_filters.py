@@ -16,7 +16,7 @@ def test_one_filter_with_no_value_and_one_with_value():
     and_filter = construct_and_filter(
         [
             Filter(property_name="isin", values=[]),
-            Filter(property_name="shortname", values=["Bond 2021"]),
+            Filter(property_name="industry", values=["Real Estate - Commercial"]),
         ]
     )
     assert and_filter == {
@@ -26,9 +26,9 @@ def test_one_filter_with_no_value_and_one_with_value():
                 "operator": "Or",
                 "operands": [
                     {
-                        "path": ["shortname"],
+                        "path": ["industry"],
                         "operator": "Equal",
-                        "valueText": "Bond 2021",
+                        "valueText": "Real Estate - Commercial",
                     },
                 ],
             },
@@ -85,7 +85,7 @@ def test_multiple_filters_with_one_value():
     and_filter = construct_and_filter(
         [
             Filter(property_name="isin", values=["NO1111111111"]),
-            Filter(property_name="shortname", values=["Bond 2021"]),
+            Filter(property_name="industry", values=["Real Estate - Commercial"]),
         ]
     )
     assert and_filter == {
@@ -105,9 +105,9 @@ def test_multiple_filters_with_one_value():
                 "operator": "Or",
                 "operands": [
                     {
-                        "path": ["shortname"],
+                        "path": ["industry"],
                         "operator": "Equal",
-                        "valueText": "Bond 2021",
+                        "valueText": "Real Estate - Commercial",
                     },
                 ],
             },
@@ -119,7 +119,10 @@ def test_multiple_filters_with_multiple_values():
     and_filter = construct_and_filter(
         [
             Filter(property_name="isin", values=["NO1111111111", "NO2222222222"]),
-            Filter(property_name="shortname", values=["Bond 2021", "Bond 2022"]),
+            Filter(
+                property_name="industry",
+                values=["Real Estate - Commercial", "Real Estate - Residential"],
+            ),
         ]
     )
     assert and_filter == {
@@ -144,14 +147,14 @@ def test_multiple_filters_with_multiple_values():
                 "operator": "Or",
                 "operands": [
                     {
-                        "path": ["shortname"],
+                        "path": ["industry"],
                         "operator": "Equal",
-                        "valueText": "Bond 2021",
+                        "valueText": "Real Estate - Commercial",
                     },
                     {
-                        "path": ["shortname"],
+                        "path": ["industry"],
                         "operator": "Equal",
-                        "valueText": "Bond 2022",
+                        "valueText": "Real Estate - Residential",
                     },
                 ],
             },
