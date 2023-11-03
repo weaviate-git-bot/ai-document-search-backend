@@ -12,6 +12,7 @@ from ai_document_search_backend.database_providers.conversation_database import 
     Source,
 )
 from ai_document_search_backend.services.base_service import BaseService
+from ai_document_search_backend.utils.filters import construct_and_filter, Filter
 
 Exchange = tuple[str, str]
 
@@ -19,6 +20,15 @@ Exchange = tuple[str, str]
 class ChatbotAnswer(BaseModel):
     text: str
     sources: list[Source]
+
+
+class Filters(BaseModel):
+    isin: list[str]
+    issuer_name: list[str]
+    filename: list[str]
+    industry: list[str]
+    risk_type: list[str]
+    green: list[str]
 
 
 class ChatbotService(BaseService):
@@ -44,7 +54,16 @@ class ChatbotService(BaseService):
         self.temperature = temperature
 
         self.text_key = "text"
-        self.custom_metadata_properties = ["isin", "shortname", "link"]
+        self.custom_metadata_properties = [
+            "link",
+            "shortname",
+            "isin",
+            "issuer_name",
+            "filename",
+            "industry",
+            "risk_type",
+            "green",
+        ]
 
         super().__init__()
 
@@ -54,6 +73,8 @@ class ChatbotService(BaseService):
         self.logger.info("Loading PDFs")
         loader = PyPDFDirectoryLoader(pdf_dir_path)
         documents = loader.load()
+        if len(documents) == 0:
+            raise ValueError(f"No PDFs found in {pdf_dir_path}")
 
         df = pd.read_csv(metadata_path)
         pdf_page_objects = []
@@ -108,12 +129,11 @@ class ChatbotService(BaseService):
                         },
                     },
                     {
-                        "name": "isin",
+                        "name": "link",
                         "dataType": ["text"],
                         "moduleConfig": {
                             "text2vec-openai": {
-                                "skip": False,
-                                "vectorizePropertyName": True,
+                                "skip": True,
                             }
                         },
                     },
@@ -128,11 +148,62 @@ class ChatbotService(BaseService):
                         },
                     },
                     {
-                        "name": "link",
+                        "name": "isin",
                         "dataType": ["text"],
                         "moduleConfig": {
                             "text2vec-openai": {
-                                "skip": True,
+                                "skip": False,
+                                "vectorizePropertyName": True,
+                            }
+                        },
+                    },
+                    {
+                        "name": "issuer_name",
+                        "dataType": ["text"],
+                        "moduleConfig": {
+                            "text2vec-openai": {
+                                "skip": False,
+                                "vectorizePropertyName": True,
+                            }
+                        },
+                    },
+                    {
+                        "name": "filename",
+                        "dataType": ["text"],
+                        "moduleConfig": {
+                            "text2vec-openai": {
+                                "skip": False,
+                                "vectorizePropertyName": True,
+                            }
+                        },
+                    },
+                    {
+                        "name": "industry",
+                        "dataType": ["text"],
+                        "moduleConfig": {
+                            "text2vec-openai": {
+                                "skip": False,
+                                "vectorizePropertyName": True,
+                            }
+                        },
+                    },
+                    {
+                        "name": "risk_type",
+                        "dataType": ["text"],
+                        "moduleConfig": {
+                            "text2vec-openai": {
+                                "skip": False,
+                                "vectorizePropertyName": True,
+                            }
+                        },
+                    },
+                    {
+                        "name": "green",
+                        "dataType": ["text"],
+                        "moduleConfig": {
+                            "text2vec-openai": {
+                                "skip": False,
+                                "vectorizePropertyName": True,
                             }
                         },
                     },
@@ -161,7 +232,9 @@ class ChatbotService(BaseService):
             f"Number of {self.weaviate_class_name} objects in Weaviate: {self.__get_number_of_objects()}"
         )
 
-    def answer(self, question: str, chat_history: list[Exchange]) -> ChatbotAnswer:
+    def answer(
+        self, question: str, chat_history: list[Exchange], filters: list[Filter]
+    ) -> ChatbotAnswer:
         """Answer the question"""
 
         vectorstore = Weaviate(
@@ -184,7 +257,11 @@ class ChatbotService(BaseService):
         qa = ConversationalRetrievalChain.from_llm(
             llm=question_answering_llm,
             retriever=vectorstore.as_retriever(
-                search_kwargs={"additional": ["certainty", "distance"], "k": self.num_sources}
+                search_kwargs={
+                    "additional": ["certainty", "distance"],
+                    "k": self.num_sources,
+                    "where_filter": construct_and_filter(filters),
+                }
             ),
             condense_question_llm=condense_question_llm,
             return_source_documents=True,
@@ -214,9 +291,32 @@ class ChatbotService(BaseService):
 
         self.client.schema.delete_all()
 
+    def get_filters(self) -> Filters:
+        return Filters(
+            isin=self.__get_available_values("isin"),
+            issuer_name=self.__get_available_values("issuer_name"),
+            filename=self.__get_available_values("filename"),
+            industry=self.__get_available_values("industry"),
+            risk_type=self.__get_available_values("risk_type"),
+            green=self.__get_available_values("green"),
+        )
+
     def __get_number_of_objects(self) -> int:
         result = self.client.query.aggregate(self.weaviate_class_name).with_meta_count().do()
         number_of_objects = result["data"]["Aggregate"][self.weaviate_class_name][0]["meta"][
             "count"
         ]
         return number_of_objects
+
+    def __get_available_values(self, property_name: str) -> list[str]:
+        result = (
+            self.client.query.aggregate(self.weaviate_class_name)
+            .with_group_by_filter(property_name)
+            .with_fields("groupedBy { path value }")
+            .do()
+        )
+        available_values = [
+            group["groupedBy"]["value"]
+            for group in result["data"]["Aggregate"][self.weaviate_class_name]
+        ]
+        return available_values
