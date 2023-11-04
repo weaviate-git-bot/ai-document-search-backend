@@ -31,6 +31,11 @@ class Filters(BaseModel):
     green: list[str]
 
 
+class ChatbotException(Exception):
+    def __init__(self, message: str):
+        self.message = message
+
+
 class ChatbotService(BaseService):
     def __init__(
         self,
@@ -269,7 +274,11 @@ class ChatbotService(BaseService):
         )
 
         self.logger.info(f"Answering question: {question}")
-        result = qa({"question": question, "chat_history": chat_history})
+        try:
+            result = qa({"question": question, "chat_history": chat_history})
+        except Exception as e:
+            self.logger.error(f"Error while answering question: {e}")
+            raise ChatbotException(f"Error while answering question: {e}")
         answer_text = result["answer"]
         self.logger.info(f"Answer: {answer_text}")
         sources = [

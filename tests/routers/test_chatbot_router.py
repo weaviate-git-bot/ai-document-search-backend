@@ -174,3 +174,20 @@ def test_invalid_filter_property_name():
             }
         ]
     }
+
+
+def test_chatbot_exception_when_message_is_too_long(get_token):
+    response = client.post(
+        "/chatbot",
+        headers={"Authorization": f"Bearer {get_token}"},
+        json={
+            "question": "Text" * 5000,
+            "filters": [],
+        },
+    )
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": "Error while answering question: This model's maximum context "
+        "length is 4097 tokens. However, your messages resulted in 5462 "
+        "tokens. Please reduce the length of the messages."
+    }
