@@ -46,7 +46,7 @@ class ChatUser(HttpUser):
     def ask_question(self):
         with self.client.post(
             "/chatbot",
-            json={"question": "What is the Loan to value ratio?"},
+            json={"question": "What is the Loan to value ratio?", "filters": []},
             headers={"Authorization": f"Bearer {self.token}"},
             catch_response=True,
         ) as response:

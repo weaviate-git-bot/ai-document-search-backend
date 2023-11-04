@@ -50,7 +50,7 @@ AUTH_PASSWORD=any_password
 
 ### Load tests
 
-- Start the server locally.
+- Start the server locally (see above).
 - `poetry run locust`
 - Open http://localhost:8089/ in your browser.
 - Enter the number of users, the spawn rate and Host (http://localhost:8000 – without trailing slash).
