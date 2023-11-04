@@ -10,9 +10,9 @@ from ai_document_search_backend.database_providers.in_memory_conversation_databa
 )
 
 test_username = "test_user"
-user_message = Message(is_from_bot=False, text="Hello")
+user_message = Message(role="user", text="Hello")
 bot_message = Message(
-    is_from_bot=True,
+    role="bot",
     text="Hi",
     sources=[
         Source(

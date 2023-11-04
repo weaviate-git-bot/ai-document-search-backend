@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Literal
 
 from pydantic import BaseModel
 
@@ -14,7 +14,7 @@ class Source(BaseModel):
 
 
 class Message(BaseModel):
-    is_from_bot: bool
+    role: Literal["user", "bot"]
     text: str
     sources: Optional[list[Source]] = None
 

@@ -7,9 +7,9 @@ from ai_document_search_backend.utils.conversation_to_chat_history import (
     conversation_to_chat_history,
 )
 
-user_message = Message(is_from_bot=False, text="Hello")
+user_message = Message(role="user", text="Hello")
 bot_message = Message(
-    is_from_bot=True,
+    role="bot",
     text="Hi",
     sources=[
         Source(

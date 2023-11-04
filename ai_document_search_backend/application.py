@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 
 from .containers import Container
@@ -9,9 +10,7 @@ from .routers import (
     chatbot_router,
     conversation_router,
 )
-from .services.chatbot_service import ChatbotException
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from .services.chatbot_service import ChatbotError
 
 
 def create_app() -> FastAPI:
@@ -32,8 +31,8 @@ def create_app() -> FastAPI:
     app.include_router(chatbot_router.router)
     app.include_router(conversation_router.router)
 
-    @app.exception_handler(ChatbotException)
-    async def chatbot_exception_handler(request: Request, exc: ChatbotException):
+    @app.exception_handler(ChatbotError)
+    async def chatbot_exception_handler(request: Request, exc: ChatbotError):
         return JSONResponse(
             status_code=400,
             content={"detail": exc.message},

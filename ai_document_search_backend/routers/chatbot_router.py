@@ -7,13 +7,13 @@ from pydantic import BaseModel
 
 from ai_document_search_backend.containers import Container
 from ai_document_search_backend.database_providers.conversation_database import Message
+from ai_document_search_backend.services.auth_service import AuthService
 from ai_document_search_backend.services.chatbot_service import (
     ChatbotService,
     ChatbotAnswer,
     Filters,
     Filter,
 )
-from ai_document_search_backend.services.auth_service import AuthService
 from ai_document_search_backend.services.conversation_service import ConversationService
 from ai_document_search_backend.utils.conversation_to_chat_history import (
     conversation_to_chat_history,
@@ -52,8 +52,8 @@ def answer_question(
 
     conversation_service.add_to_latest_conversation(
         username,
-        Message(is_from_bot=False, text=question),
-        Message(is_from_bot=True, text=answer.text, sources=answer.sources),
+        Message(role="user", text=question),
+        Message(role="bot", text=answer.text, sources=answer.sources),
     )
 
     return answer
