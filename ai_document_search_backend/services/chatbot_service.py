@@ -2,12 +2,12 @@ from pathlib import Path
 
 import pandas as pd
 import weaviate
-from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import PyPDFDirectoryLoader
 from langchain.vectorstores import Weaviate
 from pydantic import BaseModel
 
+from ai_document_search_backend.chains.source_metadata_chain import ContextSourceRetrievalChain
 from ai_document_search_backend.database_providers.conversation_database import (
     Source,
 )
@@ -259,7 +259,7 @@ class ChatbotService(BaseService):
             openai_api_key=self.openai_api_key,
             temperature=self.temperature,
         )
-        qa = ConversationalRetrievalChain.from_llm(
+        qa = ContextSourceRetrievalChain(
             llm=question_answering_llm,
             retriever=vectorstore.as_retriever(
                 search_kwargs={
@@ -275,7 +275,7 @@ class ChatbotService(BaseService):
 
         self.logger.info(f"Answering question: {question}")
         try:
-            result = qa({"question": question, "chat_history": chat_history})
+            result = qa.run({"question": question, "chat_history": chat_history})
         except Exception as e:
             self.logger.error(f"Error while answering question: {e}")
             raise ChatbotError(f"Error while answering question: {e}")

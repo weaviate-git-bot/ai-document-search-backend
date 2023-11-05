@@ -186,8 +186,10 @@ def test_chatbot_exception_when_message_is_too_long(get_token):
         },
     )
     assert response.status_code == 400
-    assert response.json() == {
-        "detail": "Error while answering question: This model's maximum context "
-        "length is 4097 tokens. However, your messages resulted in 5462 "
-        "tokens. Please reduce the length of the messages."
+    response_data = response.json()
+    assert response_data == {
+        "detail": ANY_STR,
     }
+    assert response_data["detail"].startswith(
+        "Error while answering question: This model's maximum context length is"
+    )
