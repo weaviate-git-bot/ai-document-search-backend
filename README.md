@@ -4,14 +4,13 @@
 [![Load test](https://github.com/petr7555/ai-document-search-backend/actions/workflows/load_test.yml/badge.svg)](https://github.com/petr7555/ai-document-search-backend/actions/workflows/load_test.yml)
 ![Auto-updating coverage badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/petr7555/33a367226c0ebc77e2e059ec7e9204fb/raw/pytest-coverage-comment__master.json)
 [![Build and deploy container app to Azure Web App - ai-document-search-backend](https://github.com/petr7555/ai-document-search-backend/actions/workflows/master_ai-document-search-backend.yml/badge.svg)](https://github.com/petr7555/ai-document-search-backend/actions/workflows/master_ai-document-search-backend.yml)
-![Supported Python versions](https://img.shields.io/badge/Python-3.9%20%7C%203.10%20%7C%203.11-blue)
+![Supported Python versions](https://img.shields.io/badge/Python-3.9-blue)
 
 The server is deployed at https://ai-document-search-backend.azurewebsites.net/.
 The deployment is automatic on push to the `master` branch.
 The OpenAPI schema is available at https://ai-document-search-backend.azurewebsites.net/docs.
 
-This repository uses [Poetry](https://python-poetry.org/) package manager (
-see [useful commands](#useful-poetry-commands)).
+This repository uses [Poetry](https://python-poetry.org/) package manager (see [useful commands](#useful-poetry-commands)).
 
 The server uses [FastAPI](https://fastapi.tiangolo.com/tutorial/) framework.
 
@@ -90,3 +89,7 @@ AUTH_PASSWORD=any_password
   will be downloaded.
 - Run `poetry run python ai_document_search_backend/scripts/fill_vectorstore.py` to store the documents in the vector
   database.
+
+## Project structure, architecture and design
+
+For a more detailed description of the project structure, architecture and design decisions, see the [project structure](docs/PROJECT_STRUCTURE.md) document.

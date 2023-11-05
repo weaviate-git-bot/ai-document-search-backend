@@ -7,7 +7,7 @@ from langchain.document_loaders import PyPDFDirectoryLoader
 from langchain.vectorstores import Weaviate
 from pydantic import BaseModel
 
-from ai_document_search_backend.chains.source_metadata_chain import ContextSourceRetrievalChain
+from ai_document_search_backend.chains.custom_conversational_retrieval_chain import CustomConversationalRetrievalChain
 from ai_document_search_backend.database_providers.conversation_database import (
     Source,
 )
@@ -259,7 +259,7 @@ class ChatbotService(BaseService):
             openai_api_key=self.openai_api_key,
             temperature=self.temperature,
         )
-        qa = ContextSourceRetrievalChain(
+        qa = CustomConversationalRetrievalChain(
             llm=question_answering_llm,
             retriever=vectorstore.as_retriever(
                 search_kwargs={

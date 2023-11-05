@@ -32,7 +32,7 @@ def create_app() -> FastAPI:
     app.include_router(conversation_router.router)
 
     @app.exception_handler(ChatbotError)
-    async def chatbot_exception_handler(request: Request, exc: ChatbotError):
+    async def chatbot_error_handler(request: Request, exc: ChatbotError):
         return JSONResponse(
             status_code=400,
             content={"detail": exc.message},

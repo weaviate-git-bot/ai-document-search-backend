@@ -15,7 +15,7 @@ from langchain.chains.conversational_retrieval.prompts import CONDENSE_QUESTION_
 from langchain.chains.llm import LLMChain
 
 
-class ContextSourceRetrievalChain(Chain):
+class CustomConversationalRetrievalChain(Chain):
     prompt: BasePromptTemplate = PromptTemplate.from_template("{question}")
     llm: BaseLanguageModel
     condense_question_llm: BaseLanguageModel
