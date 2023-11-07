@@ -60,6 +60,12 @@ Change URL in config
 
 ### Authentication
 
+The authentication is done using an OAuth2 password flow. The user sends their username and password to the `/token` endpoint. The endpoint returns a JWT token which is used to authenticate with the backend.
+
+The token is stored in the local storage.
+See the [`src/hooks/useAuth.tsx`](src/hooks/useAuth.tsx) file for more details.
+
+The token is automatically sent in the `Authorization` header with every API call (see [`src/index.tsx`](src/index.tsx)).
 ### Error handling
 
 FastAPI automatically handles unexpected application errors and returns the 500 status code.
@@ -86,12 +92,12 @@ Keep in mind that some tests use the real dependencies, e.g. a real Cosmos DB, a
 
 1. the service to be available,
 2. the configration in [`config.yml`](../config.yml) to point to the service,
-3. API keys to be present as environment variables.
+3. secret keys to be present as environment variables.
 
-The environment variables can be set using the `.env` file when running the tests locally. The `.env` file is not committed to the repository.
-When running the tests in CI, the variables are set in the GitHub repository settings and pulled into the environment in the `env` section of the GitHub Actions workflow.
+See the [key management](#key-management) section for more information about the secret keys.
 
-#### Coverage
+A code coverage is measured for the unit tests. The ignored files are specified in [`.coveragerc`](../.coveragerc) file.
+For more details, see the [CI/CD](#code-coverage) section.
 
 ### Load tests
 
@@ -112,35 +118,62 @@ See [`README.md`](../README.md#load-tests) for instructions on how to run the te
 
 ## Key management
 
-keys locally
-github actions
-azure service config
+The secret keys are passed using environment variables. 
+
+When running the server or tests locally, the secret keys are loaded from the `.env` file. The `.env` file is not committed to the repository.
+
+When running the tests in GitHub Actions, the secret keys are loaded from the GitHub repository settings. See the `env` section of the GitHub Actions workflow.
+
+The deployed application loads the secret keys from the Azure Web App configuration.
+
+The keys needed for the full server functionality are:
+- `APP_OPENAI_API_KEY`
+- `APP_WEAVIATE_API_KEY`
+- `COSMOS_KEY`
+- `AUTH_SECRET_KEY`
+- `AUTH_USERNAME`
+- `AUTH_PASSWORD`
+
+The keys needed for unit tests are:
+- `APP_OPENAI_API_KEY`
+- `APP_WEAVIATE_API_KEY`
+- `COSMOS_KEY`
+
+- The keys needed for load tests are:
+- `AUTH_USERNAME`
+- `AUTH_PASSWORD`
 
 ## Linting
 
-Black
-Ruff
-Files with rules, project.toml
+The backend uses [Ruff](https://github.com/astral-sh/ruff) and [Black](https://github.com/psf/black) for linting and formatting.
+The configuration for Ruff is located in the [`pyproject.toml`](../pyproject.toml) file in the `[tool.ruff]` section.
+The configuration for Black is located in the [`black.py.toml`](../black.py.toml) file.
 
 ## CI/CD
 
+### Linting and unit tests
 On every push, GitHub Actions run linting and unit tests (see [`lint_and_test.yml`](../.github/workflows/lint_and_test.yml)).
-Code coverage is collected and added as a commit comment. If the overall code coverage is lower than 70%, the workflow fails.
-On push to the `master` branch, the code coverage displayed in the project README.md file is updated.
-(see [`pytest-coverage-comment.yml`](../.github/workflows/pytest-coverage-comment.yml)).
 
+### Code coverage
+Code coverage is collected and added as a commit comment. If the overall code coverage is lower than 70%, the workflow fails.
+On push to the `master` branch, the code coverage displayed in the project [`README.md`](../README.md) file is updated.
+
+### Deployment
 On every push to the `master` branch, GitHub Actions deploy the backend as an Azure Web App.
 See [`master_ai-document-search-backend.yml`](../.github/workflows/master_ai-document-search-backend.yml).
 There are no pull request preview deployments.
+
+### Load tests
 After the backend is deployed, GitHub Actions run load tests (see [`load_test.yml`](../.github/workflows/load_test.yml)).
 
-Lint
-Load
-Coverage comments
-No preview deployment
+## Deployment diagram
 
-### Deployment diagram
+![Deployment diagram](diagrams/deployment_diagram.png)
 
 ## Chatbot architecture
 
-## Conversations saving 
+![Chatbot architecture](diagrams/chatbot_architecture.png)
+
+## Conversations saving
+
+![Conversations saving](diagrams/conversations_saving.png)
