@@ -6,11 +6,6 @@ from langchain import PromptTemplate
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import PyPDFDirectoryLoader
-from langchain.prompts import (
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate,
-    ChatPromptTemplate,
-)
 from langchain.vectorstores import Weaviate
 from pydantic import BaseModel
 
@@ -20,17 +15,6 @@ from ai_document_search_backend.database_providers.conversation_database import 
 from ai_document_search_backend.services.base_service import BaseService
 from ai_document_search_backend.utils.filters import construct_and_filter, Filter
 from ai_document_search_backend.utils.get_chat_history import get_chat_history
-
-system_template = """Use the following pieces of context to answer the users question. 
-If you don't know the answer, just say that you don't know, don't try to make up an answer.
-Say what ISIN, shortname and page you used to answer the question.
-----------------
-{context}"""
-messages = [
-    SystemMessagePromptTemplate.from_template(system_template),
-    HumanMessagePromptTemplate.from_template("{question}"),
-]
-DEFAULT_CHAT_PROMPT = ChatPromptTemplate.from_messages(messages)
 
 CUSTOM_PROMPT = PromptTemplate.from_template(
     """Answer the question using the context given below, or using your own knowledge.
