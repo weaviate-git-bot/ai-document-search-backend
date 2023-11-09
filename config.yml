@@ -13,6 +13,6 @@ cosmos:
 chatbot:
   verbose: false
   temperature: 0 # LLM randomness; 0 = ALMOST deterministic
-  question_answering_model: "gpt-3.5-turbo" # can try e.g. "gpt-4"
-  condense_question_model: "gpt-3.5-turbo" # can try e.g. "gpt-4"
+  question_answering_model: "gpt-3.5-turbo-1106" # can try e.g. "gpt-4"
+  condense_question_model: "gpt-3.5-turbo-1106" # can try e.g. "gpt-4"
   num_sources: 4 # number of sources to use to answer each question
