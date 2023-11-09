@@ -68,6 +68,7 @@ class Container(containers.DeclarativeContainer):
         condense_question_model=config.chatbot.condense_question_model,
         weaviate_class_name=config.weaviate.class_name,
         num_sources=config.chatbot.num_sources,
+        max_history_length=config.chatbot.max_history_length,
         verbose=config.chatbot.verbose,
         temperature=config.chatbot.temperature,
     )

@@ -2,20 +2,59 @@ from pathlib import Path
 
 import pandas as pd
 import weaviate
-from langchain.callbacks import StdOutCallbackHandler
+from langchain import PromptTemplate
+from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import PyPDFDirectoryLoader
+from langchain.prompts import (
+    SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate,
+    ChatPromptTemplate,
+)
 from langchain.vectorstores import Weaviate
 from pydantic import BaseModel
 
-from ai_document_search_backend.chains.custom_conversational_retrieval_chain import (
-    CustomConversationalRetrievalChain,
-)
 from ai_document_search_backend.database_providers.conversation_database import (
     Source,
 )
 from ai_document_search_backend.services.base_service import BaseService
 from ai_document_search_backend.utils.filters import construct_and_filter, Filter
+from ai_document_search_backend.utils.get_chat_history import get_chat_history
+
+system_template = """Use the following pieces of context to answer the users question. 
+If you don't know the answer, just say that you don't know, don't try to make up an answer.
+Say what ISIN, shortname and page you used to answer the question.
+----------------
+{context}"""
+messages = [
+    SystemMessagePromptTemplate.from_template(system_template),
+    HumanMessagePromptTemplate.from_template("{question}"),
+]
+DEFAULT_CHAT_PROMPT = ChatPromptTemplate.from_messages(messages)
+
+CUSTOM_PROMPT = PromptTemplate.from_template(
+    """Answer the question using the context given below, or using your own knowledge.
+Refer to the origin of your knowledge using the ISIN, shortname and page in a natural way.
+If you can't find an answer, say that you don't know. Do not make things up.
+
+Context:
+{context}
+
+Question:
+{question}
+
+Answer:
+"""
+)
+
+document_prompt_template = """ISIN: {isin}
+Shortname: {shortname}
+Page: {page}
+Content: {page_content}
+"""
+DOCUMENT_PROMPT = PromptTemplate(
+    input_variables=["isin", "shortname", "page", "page_content"], template=document_prompt_template
+)
 
 Exchange = tuple[str, str]
 
@@ -49,6 +88,7 @@ class ChatbotService(BaseService):
         condense_question_model: str,
         weaviate_class_name: str,
         num_sources: int = 4,
+        max_history_length: int = 4,
         verbose: bool = False,
         temperature: float = 0,
     ):
@@ -58,6 +98,7 @@ class ChatbotService(BaseService):
         self.openai_api_key = openai_api_key
         self.weaviate_class_name = weaviate_class_name
         self.num_sources = num_sources
+        self.max_history_length = max_history_length
         self.verbose = verbose
         self.temperature = temperature
 
@@ -92,7 +133,8 @@ class ChatbotService(BaseService):
                 continue
             pdf_page_object = {
                 self.text_key: text,
-                "page": doc.metadata["page"],
+                # PyPDFDirectoryLoader uses zero-based indexing, we want one-based indexing
+                "page": doc.metadata["page"] + 1,
                 "source": doc.metadata["source"],
             }
             filename = Path(doc.metadata["source"]).name
@@ -262,7 +304,7 @@ class ChatbotService(BaseService):
             openai_api_key=self.openai_api_key,
             temperature=self.temperature,
         )
-        qa = CustomConversationalRetrievalChain(
+        qa = ConversationalRetrievalChain.from_llm(
             llm=question_answering_llm,
             retriever=vectorstore.as_retriever(
                 search_kwargs={
@@ -272,16 +314,18 @@ class ChatbotService(BaseService):
                 }
             ),
             condense_question_llm=condense_question_llm,
+            get_chat_history=self.__get_chat_history,
+            combine_docs_chain_kwargs={
+                "prompt": CUSTOM_PROMPT,
+                "document_prompt": DOCUMENT_PROMPT,
+            },
             return_source_documents=True,
             verbose=self.verbose,
         )
 
         self.logger.info(f"Answering question: {question}")
         try:
-            result = qa.run(
-                {"question": question, "chat_history": chat_history},
-                callbacks=[StdOutCallbackHandler()] if self.verbose else None,
-            )
+            result = qa({"question": question, "chat_history": chat_history})
         except Exception as e:
             self.logger.error(f"Error while answering question: {e}")
             raise ChatbotError(f"Error while answering question: {e}")
@@ -335,3 +379,6 @@ class ChatbotService(BaseService):
             for group in result["data"]["Aggregate"][self.weaviate_class_name]
         ]
         return available_values
+
+    def __get_chat_history(self, inputs: list[tuple[str, str]]) -> str:
+        return get_chat_history(inputs, self.max_history_length)
