@@ -4,7 +4,7 @@ auth:
   algorithm: "HS256"
   access_token_expire_minutes: 0 # 0 = never
 weaviate:
-  url: "https://ai-document-search-backend-dev-zohdvss8.weaviate.network"
+  url: "https://ai-document-search-backend-dev-vdve3h1k.weaviate.network"
   class_name: "UnstructuredDocument"
 cosmos:
   url: "https://cosmos-docsearch-dev.documents.azure.com:443/"
