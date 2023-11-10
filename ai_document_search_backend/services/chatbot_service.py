@@ -17,9 +17,9 @@ from ai_document_search_backend.utils.filters import construct_and_filter, Filte
 from ai_document_search_backend.utils.get_chat_history import get_chat_history
 
 CUSTOM_PROMPT = PromptTemplate.from_template(
-    """Answer the question using the context given below, or using your own knowledge.
-Refer to the origin of your knowledge using the ISIN, shortname and page in a natural way.
-If you can't find an answer, say that you don't know. Do not make things up.
+    """Answer the question using the pages from different documents given below, or using your own knowledge.
+Always say which pages you used to answer the question.
+If you can't find an answer, say that you don't know. Don't make things up.
 
 Context:
 {context}
@@ -33,8 +33,8 @@ Answer:
 
 document_prompt_template = """ISIN: {isin}
 Shortname: {shortname}
-Page: {page}
-Content: {page_content}
+Page number: {page}
+Page content: {page_content}
 """
 DOCUMENT_PROMPT = PromptTemplate(
     input_variables=["isin", "shortname", "page", "page_content"], template=document_prompt_template
