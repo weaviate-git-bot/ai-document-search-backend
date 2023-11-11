@@ -3,7 +3,7 @@ import json
 import weaviate
 from dependency_injector.wiring import inject, Provide
 
-from ai_document_search_backend.containers import Container
+from ai_document_search_backend.container import Container
 
 
 def get_batch_with_cursor(client, class_name, class_properties, batch_size, cursor=None):

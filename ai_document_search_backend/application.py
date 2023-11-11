@@ -7,7 +7,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 
-from .containers import Container
+from .container import Container
 from .routers import (
     home_router,
     auth_router,

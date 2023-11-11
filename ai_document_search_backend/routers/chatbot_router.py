@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 
-from ai_document_search_backend.containers import Container
+from ai_document_search_backend.container import Container
 from ai_document_search_backend.database_providers.conversation_database import Message
 from ai_document_search_backend.services.auth_service import AuthService
 from ai_document_search_backend.services.chatbot_service import (

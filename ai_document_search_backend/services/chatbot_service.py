@@ -16,7 +16,7 @@ from ai_document_search_backend.services.base_service import BaseService
 from ai_document_search_backend.utils.filters import construct_and_filter, Filter
 from ai_document_search_backend.utils.get_chat_history import get_chat_history
 
-CUSTOM_PROMPT = PromptTemplate.from_template(
+QUESTION_PROMPT = PromptTemplate.from_template(
     """Answer the question using the pages from different documents given below, or using your own knowledge.
 Always say which pages you used to answer the question.
 If you can't find an answer, say that you don't know. Don't make things up.
@@ -300,7 +300,7 @@ class ChatbotService(BaseService):
             condense_question_llm=condense_question_llm,
             get_chat_history=self.__get_chat_history,
             combine_docs_chain_kwargs={
-                "prompt": CUSTOM_PROMPT,
+                "prompt": QUESTION_PROMPT,
                 "document_prompt": DOCUMENT_PROMPT,
             },
             return_source_documents=True,
