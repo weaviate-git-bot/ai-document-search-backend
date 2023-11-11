@@ -266,7 +266,7 @@ You can set `verbose: true` in the `chat` section of the [`config.yml`](../confi
 
 The `answer` method of the [`ChatbotService`](../ai_document_search_backend/services/chatbot_service.py) takes the user question, chat history and user-defined filters. Then it calls the `ConversationalRetrievalChain`. This chain first condenses the chat history and the new question using a condense prompt and OpenAI model. Condensing means creating a new standalone question that contains the context of the previous messages.
 
-The number of previous question–answer pairs to take into account when condensing a question is defined by `max_history_length`. The model for condensing is defined by `condense_question_model`. The `get_chat_history` method formats the question–answer pairs. A default condense prompt is used.
+The number of previous question–answer pairs to take into account when condensing a question is defined by `max_history_length`. The OpenAI model for condensing is defined by `condense_question_model`. The `get_chat_history` method formats the question–answer pairs. A default condense prompt is used.
 
 The standalone question is then used to retrieve the most relevant objects (pages of text) from the vector database.
 The question is vectorized using the `text2vec-openai` module and the most similar objects that match the user filters are returned.
@@ -276,14 +276,15 @@ This is an approximate nearest neighbor (ANN) search algorithm – the results a
 
 The default `StuffDocumentsChain` then creates a `context` by formatting each retrieved object using the `DOCUMENT_PROMPT` and joining them using the default `document_separator = "\n\n"`.
 
-A final prompt is created by pasting the `context` and standalone question into the `QUESTION_PROMPT`. This prompt is sent to the `question_answering_model` which returns the answer.
+A final prompt is created by pasting the `context` and standalone question into the `QUESTION_PROMPT`.
+This prompt is sent to the OpenAI model defined by `question_answering_model` which returns the answer.
 
 The answer and the objects previously retrieved from the vector database ("sources") are returned to the user.
 
 ### Chatbot configuration
 
 You can find chatbot configuration in the `chatbot` section of the [`config.yml`](../config.yml) file.
-For example. changing the `question_answering_model` to `gpt-4` can lead to better answers at the cost of slower response times.
+For example, changing the `question_answering_model` to `gpt-4` can lead to better answers at the cost of slower response times.
 See the comments in the [`config.yml`](../config.yml) file and the [previous section](#rag-chain) for information on what the configuration options mean.
 
 A big influence on the chatbot responses have the prompts.
