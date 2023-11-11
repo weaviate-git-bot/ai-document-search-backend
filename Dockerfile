@@ -3,7 +3,7 @@ FROM python:$PYTHON_VERSION
 
 LABEL name="python-$PYTHON_VERSION"
 LABEL version="$PYTHON_VERSION"
-LABEL maintainer="Petr Janik <petrj@stud.ntnu.no>"
+LABEL maintainer="Petr Janik <peta.janik@email.cz>"
 
 ARG POETRY_VERSION=1.3.2
 
@@ -19,6 +19,6 @@ ENV POETRY_VIRTUALENVS_IN_PROJECT=true
 RUN poetry install --only main --no-root --no-cache --no-interaction
 
 COPY ai_document_search_backend ./ai_document_search_backend
-COPY config.yml ./
+COPY config.yml logging.conf ./
 
 CMD ["poetry", "run", "uvicorn", "ai_document_search_backend.application:app", "--host", "0.0.0.0", "--port", "80"]

@@ -68,8 +68,10 @@ AUTH_PASSWORD=any_password
 ### Build Docker image, tag and push to Azure Container Registry
 
 - `docker build -t ai-document-search-backend -f Dockerfile .`
-- `docker tag ai-document-search-backend:latest crdocsearchdev.azurecr.io/ai-document-search-backend:0.0.1`
-- `docker push crdocsearchdev.azurecr.io/ai-document-search-backend:0.0.1`
+- `docker tag ai-document-search-backend:latest crdocsearchdev.azurecr.io/crdocsearchdev/ai-document-search-backend:0.0.1`
+- `az login`
+- `az acr login --name crdocsearchdev`
+- `docker push crdocsearchdev.azurecr.io/crdocsearchdev/ai-document-search-backend:0.0.1`
 
 ### Useful Poetry commands
 
@@ -81,15 +83,12 @@ AUTH_PASSWORD=any_password
 
 ### Populating the vector database
 
-- Download `NTNU2.xlsx` from the customer and save it to `data/NTNU2.xlsx`. This file is private and is therefore not
-  included in the repository.
+- Download `NTNU2.xlsx` from the customer and save it to `data/NTNU2.xlsx`. This file is private and is therefore not included in the repository.
+  See [`prepare_data.py`](ai_document_search_backend/scripts/prepare_data.py) for the columns that must be present in the file.
 - Run `poetry run python ai_document_search_backend/scripts/prepare_data.py` to pre-process the data.
-- Run `poetry run python ai_document_search_backend/scripts/download_documents.py [limit]` to download the PDFs into a
-  local folder. The limit is optional and specifies the number of documents to download. If not specified, all documents
-  will be downloaded.
-- Run `poetry run python ai_document_search_backend/scripts/fill_vectorstore.py` to store the documents in the vector
-  database.
+- Run `poetry run python ai_document_search_backend/scripts/download_documents.py [limit]` to download the PDFs into a local folder. The limit is optional and specifies the number of documents to download. If not specified, all documents will be downloaded.
+- Run `poetry run python ai_document_search_backend/scripts/fill_vectorstore.py` to store the documents in the vector database.
 
 ## Project structure, architecture and design
 
-For a more detailed description of the project structure, architecture and design decisions, see the [project structure](docs/PROJECT_STRUCTURE.md) document.
+For a more detailed description of the project structure, architecture and design, see the [project structure](docs/PROJECT_STRUCTURE.md) document.

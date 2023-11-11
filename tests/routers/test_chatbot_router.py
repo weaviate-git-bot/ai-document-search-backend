@@ -181,7 +181,7 @@ def test_chatbot_exception_when_message_is_too_long(get_token):
         "/chatbot",
         headers={"Authorization": f"Bearer {get_token}"},
         json={
-            "question": "Text" * 5000,
+            "question": "Text" * 20000,
             "filters": [],
         },
     )
@@ -190,6 +190,5 @@ def test_chatbot_exception_when_message_is_too_long(get_token):
     assert response_data == {
         "detail": ANY_STR,
     }
-    assert response_data["detail"].startswith(
-        "Error while answering question: This model's maximum context length is"
-    )
+    assert "Error while answering question:" in response_data["detail"]
+    assert "This model's maximum context length is" in response_data["detail"]

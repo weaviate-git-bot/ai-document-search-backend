@@ -2,6 +2,7 @@ import logging
 import random
 import string
 import time
+from logging import config
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -16,8 +17,9 @@ from .routers import (
     conversation_router,
 )
 from .services.chatbot_service import ChatbotError
+from .utils.relative_path_from_file import relative_path_from_file
 
-logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
+logging.config.fileConfig(relative_path_from_file(__file__, "../logging.conf"), disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
 
