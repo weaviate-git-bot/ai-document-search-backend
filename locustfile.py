@@ -22,6 +22,8 @@ class ChatUser(HttpUser):
         response = self.client.post(
             "/auth/token", data={"username": username, "password": password}
         )
+        if response.status_code != 200:
+            raise Exception("Could not authenticate.")
         self.token = response.json()["access_token"]
 
         # create new conversation
