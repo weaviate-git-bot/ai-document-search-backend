@@ -19,7 +19,9 @@ from .routers import (
 from .services.chatbot_service import ChatbotError
 from .utils.relative_path_from_file import relative_path_from_file
 
-logging.config.fileConfig(relative_path_from_file(__file__, "../logging.conf"), disable_existing_loggers=False)
+logging.config.fileConfig(
+    relative_path_from_file(__file__, "../logging.conf"), disable_existing_loggers=False
+)
 logger = logging.getLogger(__name__)
 
 
