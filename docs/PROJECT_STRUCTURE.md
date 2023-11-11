@@ -26,6 +26,7 @@ The endpoints define the request and response models. For non-primitive types, [
 ```python
 from pydantic import BaseModel
 
+
 class ChatbotAnswer(BaseModel):
     text: str
     sources: list[Source]
@@ -45,13 +46,11 @@ The container is defined in [`container.py`](../ai_document_search_backend/conta
 It loads a configuration from the [`config.yml`](../config.yml) file. The configuration is extended with environment variables.
 It then defines factories for services, passing the configuration to them.
 
-The services can then be injected into the routes by using the `@inject` decorator and e.g. `Depends(Provide[Container.chatbot_service])` default parameter.
+The services can then be injected into the routes using the combination of `@inject` decorator and a default parameter (e.g. `Depends(Provide[Container.chatbot_service])`).
 
 The unit tests ofter override the container configuration to make the testing easier and independent of the real services.
 
 ### Examples
-
-[//]: # (TODO test)
 
 #### Vector database
 
@@ -90,9 +89,11 @@ A custom `ChatbotError` handler is defined in [`application.py`](../ai_document_
 
 ## Logging
 
-The server uses the standard Python logging library.
+The server uses the standard Python `logging` library.
 The logging configuration is in the [`logging.conf`](../logging.conf) file and is loaded in [`application.py`](../ai_document_search_backend/application.py).
 The processing time of all requests is logged using a middleware defined in the same file.
+
+All services inherit from the `BaseService` which defines a logger with the name of the service.
 
 ## Authentication
 
@@ -102,7 +103,7 @@ The client sends username and password to the `/token` endpoint. The endpoint re
 
 The secret key used to encode and decode JWTs is defined in the `AUTH_SECRET_KEY` environment variable.
 
-The database of registered users is hard-coded and consists of a single user with username and password defined in the `AUTH_USERNAME` and `AUTH_PASSWORD` environment variables.
+The database of registered users is hard coded and consists of a single user with username and password defined in the `AUTH_USERNAME` and `AUTH_PASSWORD` environment variables.
 
 You can find authentication configuration in the `auth` section of the [`config.yml`](../config.yml) file.
 
@@ -131,7 +132,8 @@ Keep in mind that some tests use the real dependencies, e.g. a real Cosmos DB, a
 See the [key management](#key-management) section for more information about the secret keys.
 
 A code coverage is measured for the unit tests. The ignored files are specified in [`.coveragerc`](../.coveragerc) file.
-For more details, see the [CI/CD](#code-coverage) section.
+For more details, see the [code coverage](#code-coverage)
+in the CI/CD section.
 
 ### Load tests
 
@@ -154,13 +156,13 @@ See [`Load tests in README.md`](../README.md#load-tests) for instructions on how
 
 The secret keys are passed using environment variables.
 
-When running the server or tests locally, the secret keys are loaded from the `.env` file. The `.env` file is not committed to the repository.
+When running the server or tests locally (both unit and load tests), the secret keys are loaded from the `.env` file. The `.env` file is not committed to the repository.
 
-When running the tests in GitHub Actions, the secret keys are loaded from the GitHub repository settings. See the `env` section of the GitHub Actions workflow.
+When running the tests in GitHub Actions (both unit and load tests), the secret keys are loaded from the GitHub repository settings. See the `env` section of the `Test` step in the [`lint_and_test.yml`](../.github/workflows/lint_and_test.yml) and the `env` section of the `Load test` step in the [`load_test.yml`](../.github/workflows/load_test.yml).
 
-The deployed application loads the secret keys from the Azure Web App configuration.
+The deployed application loads the secret keys from the Azure App Service configuration.
 
-The keys needed for the full server functionality are:
+The keys needed for the complete server functionality are:
 
 - `APP_OPENAI_API_KEY`
 - `APP_WEAVIATE_API_KEY`
@@ -175,7 +177,8 @@ The keys needed for unit tests are:
 - `APP_WEAVIATE_API_KEY`
 - `COSMOS_KEY`
 
-- The keys needed for load tests are:
+The keys needed for load tests are:
+
 - `AUTH_USERNAME`
 - `AUTH_PASSWORD`
 
@@ -198,18 +201,21 @@ On push to the `master` branch, the code coverage displayed in the project [`REA
 
 ### Deployment
 
-On every push to the `master` branch, GitHub Actions deploy the backend as an Azure App Service.
+On every push to the `master` branch, GitHub Actions deploy the server as an Azure App Service.
 See [`master_ai-document-search-backend.yml`](../.github/workflows/master_ai-document-search-backend.yml).
+
 First, a container is built according to the [`Dockerfile`](../Dockerfile) and pushed to the Azure Container Registry.
 Then, the container is deployed to the Azure App Service.
+
 There are no pull request preview deployments.
+
 The deployment has been set up using [this tutorial](https://learn.microsoft.com/en-us/azure/app-service/deploy-github-actions?tabs=applevel#use-the-deployment-center).
 
 ### Load tests
 
-After the backend is deployed, GitHub Actions run load tests (see [`load_test.yml`](../.github/workflows/load_test.yml)).
+After the server is deployed, GitHub Actions run load tests against the deployed server (see [`load_test.yml`](../.github/workflows/load_test.yml)).
 
-## Deployment diagram
+## Deployment
 
 ![Deployment diagram](diagrams/deployment_diagram.png)
 
@@ -222,7 +228,7 @@ For server deployment details, see the [CI/CD](#deployment) section.
 The server uses [Azure Cosmos DB](https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/quickstart-python?tabs=azure-portal%2Cconnection-string%2Clinux%2Csign-in-azure-cli%2Csync) as a database to store the conversations.
 
 You can find Cosmos DB configuration in the `cosmos` section of the [`config.yml`](../config.yml) file.
-You also need to specify `COSMOS_KEY` environment variable.
+You need to specify `COSMOS_KEY` environment variable to connect to the database.
 
 ### Weaviate
 
@@ -230,7 +236,7 @@ The server uses [Weaviate](https://weaviate.io/) vector database to store the ve
 It uses a managed instance of Weaviate deployed in [Weaviate Cloud Services](https://console.weaviate.cloud/).
 
 You can find Weaviate configuration in the `weaviate` section of the [`config.yml`](../config.yml) file.
-You also need to specify `APP_WEAVIATE_API_KEY` environment variable.
+You need to specify `APP_WEAVIATE_API_KEY` environment variable to connect to the database.
 
 ## Chatbot architecture
 
@@ -238,6 +244,7 @@ You also need to specify `APP_WEAVIATE_API_KEY` environment variable.
 
 The chatbot is implemented using [LangChain](https://python.langchain.com/).
 LangChain is a framework for developing applications powered by language models.
+
 During the development of this project, LangChain introduced new syntax for creating chains, called [LangChain Expression Language](https://blog.langchain.dev/langchain-expression-language/).
 This project is written using the old syntax.
 
@@ -264,12 +271,12 @@ The number of previous question–answer pairs to take into account when condens
 The standalone question is then used to retrieve the most relevant objects (pages of text) from the vector database.
 The question is vectorized using the `text2vec-openai` module and the most similar objects that match the user filters are returned.
 The number of objects to retrieve is defined by `num_sources`.
-Weaviate uses [HNSW](https://weaviate.io/developers/weaviate/configuration/indexes#hnsw-vector-indexes) algorithm for vector search.
+Weaviate uses [HNSW](https://weaviate.io/developers/weaviate/configuration/indexes) algorithm for vector search.
 This is an approximate nearest neighbor (ANN) search algorithm – the results are not guaranteed to be the most similar objects.
 
-The default `StuffDocumentsChain` then creates a `context` by formatting each retrieved object using the `DOCUMENT_PROMPT` prompt and joining them using the default `document_separator= "\n\n"`.
+The default `StuffDocumentsChain` then creates a `context` by formatting each retrieved object using the `DOCUMENT_PROMPT` and joining them using the default `document_separator = "\n\n"`.
+
 A final prompt is created by pasting the `context` and standalone question into the `QUESTION_PROMPT`. This prompt is sent to the `question_answering_model` which returns the answer.
-[//]: # (TODO standalone?)
 
 The answer and the objects previously retrieved from the vector database ("sources") are returned to the user.
 
@@ -281,9 +288,6 @@ See the comments in the [`config.yml`](../config.yml) file and the [previous sec
 
 A big influence on the chatbot responses have the prompts.
 You can experiment with the `QUESTION_PROMPT` to see how the chatbot responses change.
-For example, removing the line "If you can't find an answer, say that you don't know. Don't make things up." results in a chatbot that can tell you a joke.
-
-[//]: # (TODO test joke)
 
 #### Further experimentation
 
@@ -295,9 +299,11 @@ The source documents are combined using the `StuffDocumentsChain` which is furth
 
 #### Observability
 
-The scripts folder contains also [`observability.py`](../ai_document_search_backend/scripts/observability.py) file which prints the number of objects in the vector database and the current schema.
-The number of objects is equal to the number of pages of all ingested PDFs and can be seen also in the Weaviate Cloud Services dashboard.
+The [`scripts`](../ai_document_search_backend/scripts) folder contains also [`observability.py`](../ai_document_search_backend/scripts/observability.py) which prints the number of objects in the vector database and the current schema.
+The number of objects is equal to the number of non-empty pages of all ingested PDFs and can be seen also in the [Weaviate Cloud Services dashboard](https://console.weaviate.cloud/dashboard).
 
 ## Conversations saving
 
 ![Conversations saving](diagrams/conversations_saving.png)
+
+This diagram shows how user conversations management is handled on frontend, backend and how frontend interacts with the backend.
