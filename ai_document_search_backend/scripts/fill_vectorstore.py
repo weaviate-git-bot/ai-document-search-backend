@@ -2,7 +2,7 @@ import logging
 
 from dependency_injector.wiring import Provide, inject
 
-from ai_document_search_backend.containers import Container
+from ai_document_search_backend.container import Container
 from ai_document_search_backend.services.chatbot_service import ChatbotService
 from ai_document_search_backend.utils.relative_path_from_file import (
     relative_path_from_file,

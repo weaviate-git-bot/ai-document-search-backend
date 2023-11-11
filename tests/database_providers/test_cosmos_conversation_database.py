@@ -1,6 +1,6 @@
 import pytest
 
-from ai_document_search_backend.containers import Container
+from ai_document_search_backend.container import Container
 from ai_document_search_backend.database_providers.conversation_database import (
     Conversation,
     Message,

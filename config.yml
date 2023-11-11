@@ -1,10 +1,8 @@
-default:
-  summary_length: 10
 auth:
   algorithm: "HS256"
   access_token_expire_minutes: 0 # 0 = never
 weaviate:
-  url: "https://ai-document-search-backend-dev-zohdvss8.weaviate.network"
+  url: "https://ai-document-search-backend-dev-vdve3h1k.weaviate.network"
   class_name: "UnstructuredDocument"
 cosmos:
   url: "https://cosmos-docsearch-dev.documents.azure.com:443/"
@@ -13,6 +11,10 @@ cosmos:
 chatbot:
   verbose: false
   temperature: 0 # LLM randomness; 0 = ALMOST deterministic
-  question_answering_model: "gpt-3.5-turbo" # can try e.g. "gpt-4"
-  condense_question_model: "gpt-3.5-turbo" # can try e.g. "gpt-4"
+  question_answering_model: "gpt-3.5-turbo-1106" # can try e.g. "gpt-4"
+  condense_question_model: "gpt-3.5-turbo-1106" # can try e.g. "gpt-4"
   num_sources: 4 # number of sources to use to answer each question
+  # number of previous questions in a conversation to take into account when answering a new question
+  # 0 = no messages are taken into account
+  # -1 = all previous messages are taken into account
+  max_history_length: 4

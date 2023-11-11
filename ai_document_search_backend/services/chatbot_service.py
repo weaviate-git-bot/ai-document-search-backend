@@ -2,17 +2,43 @@ from pathlib import Path
 
 import pandas as pd
 import weaviate
+from langchain import PromptTemplate
+from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import PyPDFDirectoryLoader
 from langchain.vectorstores import Weaviate
 from pydantic import BaseModel
 
-from ai_document_search_backend.chains.source_metadata_chain import ContextSourceRetrievalChain
 from ai_document_search_backend.database_providers.conversation_database import (
     Source,
 )
 from ai_document_search_backend.services.base_service import BaseService
 from ai_document_search_backend.utils.filters import construct_and_filter, Filter
+from ai_document_search_backend.utils.get_chat_history import get_chat_history
+
+QUESTION_PROMPT = PromptTemplate.from_template(
+    """Answer the question using the pages from different documents given below, or using your own knowledge.
+Always say which pages you used to answer the question.
+If you can't find an answer, say that you don't know. Don't make things up.
+
+Context:
+{context}
+
+Question:
+{question}
+
+Answer:
+"""
+)
+
+document_prompt_template = """ISIN: {isin}
+Shortname: {shortname}
+Page number: {page}
+Page content: {page_content}
+"""
+DOCUMENT_PROMPT = PromptTemplate(
+    input_variables=["isin", "shortname", "page", "page_content"], template=document_prompt_template
+)
 
 Exchange = tuple[str, str]
 
@@ -46,6 +72,7 @@ class ChatbotService(BaseService):
         condense_question_model: str,
         weaviate_class_name: str,
         num_sources: int = 4,
+        max_history_length: int = 4,
         verbose: bool = False,
         temperature: float = 0,
     ):
@@ -55,6 +82,7 @@ class ChatbotService(BaseService):
         self.openai_api_key = openai_api_key
         self.weaviate_class_name = weaviate_class_name
         self.num_sources = num_sources
+        self.max_history_length = max_history_length
         self.verbose = verbose
         self.temperature = temperature
 
@@ -89,7 +117,8 @@ class ChatbotService(BaseService):
                 continue
             pdf_page_object = {
                 self.text_key: text,
-                "page": doc.metadata["page"],
+                # PyPDFDirectoryLoader uses zero-based indexing, we want one-based indexing
+                "page": doc.metadata["page"] + 1,
                 "source": doc.metadata["source"],
             }
             filename = Path(doc.metadata["source"]).name
@@ -259,7 +288,7 @@ class ChatbotService(BaseService):
             openai_api_key=self.openai_api_key,
             temperature=self.temperature,
         )
-        qa = ContextSourceRetrievalChain(
+        qa = ConversationalRetrievalChain.from_llm(
             llm=question_answering_llm,
             retriever=vectorstore.as_retriever(
                 search_kwargs={
@@ -269,13 +298,18 @@ class ChatbotService(BaseService):
                 }
             ),
             condense_question_llm=condense_question_llm,
+            get_chat_history=self.__get_chat_history,
+            combine_docs_chain_kwargs={
+                "prompt": QUESTION_PROMPT,
+                "document_prompt": DOCUMENT_PROMPT,
+            },
             return_source_documents=True,
             verbose=self.verbose,
         )
 
         self.logger.info(f"Answering question: {question}")
         try:
-            result = qa.run({"question": question, "chat_history": chat_history})
+            result = qa({"question": question, "chat_history": chat_history})
         except Exception as e:
             self.logger.error(f"Error while answering question: {e}")
             raise ChatbotError(f"Error while answering question: {e}")
@@ -329,3 +363,6 @@ class ChatbotService(BaseService):
             for group in result["data"]["Aggregate"][self.weaviate_class_name]
         ]
         return available_values
+
+    def __get_chat_history(self, inputs: list[tuple[str, str]]) -> str:
+        return get_chat_history(inputs, self.max_history_length)
