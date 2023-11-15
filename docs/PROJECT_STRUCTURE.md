@@ -284,7 +284,8 @@ The answer and the objects previously retrieved from the vector database ("sourc
 ### Chatbot configuration
 
 You can find chatbot configuration in the `chatbot` section of the [`config.yml`](../config.yml) file.
-For example, changing the `question_answering_model` to `gpt-4` can lead to better answers at the cost of slower response times.
+For example, using `gpt-4` instead of `gpt-3.5-turbo` as the `question_answering_model` can lead to better answers at the cost of slower response times.
+See the available OpenAI models [here](https://platform.openai.com/docs/models).
 See the comments in the [`config.yml`](../config.yml) file and the [previous section](#rag-chain) for information on what the configuration options mean.
 
 A big influence on the chatbot responses have the prompts.
