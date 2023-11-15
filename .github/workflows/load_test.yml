@@ -17,6 +17,12 @@ jobs:
         python-version: [ "3.9" ]
 
     steps:
+        # Sleep for three minutes if action was not run manually
+        # because the backend is not immediately available after the deployment job finished.
+      - name: Sleep for three minutes
+        if: github.event_name != 'workflow_dispatch'
+        run: sleep 180
+
       - name: Checkout
         uses: actions/checkout@v3
 
